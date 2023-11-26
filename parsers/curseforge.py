@@ -32,11 +32,11 @@ class CurseForgeParser(BaseParser):
         self.is_empty = False
         page = 1
         while not self.is_empty:
-            print(f"Grabbing page {page}...", end=" ")
+            print(f"\rGrabbing page {page}...", end="")
             data = self.get_page(page)
             self.parse_elements(data)
             page += 1
-            print()
+        print()
 
         self.driver.close()
 
