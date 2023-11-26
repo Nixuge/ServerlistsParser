@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from classes.ParserMeta import ParserMeta
+from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
@@ -69,6 +70,12 @@ class CurseForgeParser(BaseParser):
     def print_ask(self, server: Server):
         if is_already_present(server.ip, False):
             return
+        
+        if server.playercount == "Offline":
+            add_server_dupe("duplicates.txt", server.ip, "down")
+            print(f"Skipped {server.ip} (down)")
+            return
+
         print("====================")
         print(f"name: {server.name}")
         print(f"ip: {server.ip}, {server.playercount}")

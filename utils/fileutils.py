@@ -13,8 +13,7 @@ def init_file(filename):
     with open(f"{OUTPUT_PATH}/{filename}", "w") as file:
         file.write(",\n")
 
-def add_server_dupe(filename: str, ip: str):
-    reason = input("Enter the server info: ")
+def add_server_dupe(filename: str, ip: str, reason: str):
     with open(f"{OUTPUT_PATH}/{filename}", "a") as file:
         file.write(f"        \"{ip}\": \"{reason}\",\n")
 

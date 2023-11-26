@@ -19,7 +19,9 @@ def ask_duplicate(ip: str, bedrock: bool):
             name = "duplicates_bedrock.txt"
         else:
             name = "duplicates.txt"
-        add_server_dupe(name, ip)
+        
+        reason = input("Enter the server info: ")
+        add_server_dupe(name, ip, reason)
     else:
         if bedrock:
             name = "ips_bedrock.txt"
