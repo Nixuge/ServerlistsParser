@@ -1,0 +1,1 @@
+# todo: curseforge serverlist parser
