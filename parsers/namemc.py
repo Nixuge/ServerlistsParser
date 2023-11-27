@@ -22,8 +22,8 @@ class Server:
 
 class NameMCParser(BaseParser):
     END_PAGE = 30
-    PRINT_SERVER_COUNT = False
-    PRINT_DOWN_SERVERS = False
+    PRINT_SERVER_COUNT = True
+    PRINT_DOWN_SERVERS = True
 
     all_servers: dict[str, Server] # dict to avoid multiple same ips
     def __init__(self) -> None:
@@ -75,7 +75,7 @@ class NameMCParser(BaseParser):
             count += 1
         
         if self.PRINT_SERVER_COUNT:
-            print(f"{count} new servers")
+            print(f"{count} new servers", end="")
     
     def print_ask(self, server: Server):
         print("====================")
@@ -85,6 +85,8 @@ class NameMCParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
+        if self.PRINT_SERVER_COUNT:
+            print(f"Asking for {len(self.all_servers)} servers")
         for server in self.all_servers.values():
             self.print_ask(server)
 
