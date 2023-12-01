@@ -4,6 +4,7 @@ from classes.ParserMeta import ParserMeta
 
 
 def run_single_parser(parser_meta: ParserMeta):
+    print(f"Running parser {parser_meta.name} (v{parser_meta.version}) for {parser_meta.website}")
     parser = parser_meta.parserClass()
 
     parser.get_parse_everything()
@@ -20,6 +21,8 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
         if index < 0:
             print(f"Index too low: {index}")
             return
+    
+    print(f"Running {len(indexes)} parsers")
     
     parsers: list[tuple[ParserMeta, BaseParser]] = []
     for i in indexes:

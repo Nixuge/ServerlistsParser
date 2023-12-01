@@ -15,21 +15,20 @@ lenP = len(all_parsers)
 print("=====Choose a parser to run:=====")
 for index, parser in enumerate(all_parsers):
     print(f"{index+1}: {parser.name} v{parser.version} ({parser.website})")
-print("4: Run multiple parsers")
-print("5: Run all parsers")
+print(f"{lenP+1}: Run all parsers")
 print("=================================")
-index = int(input("Enter your choosed parser: ")) - 1
 
-if index == lenP + 1:
-    run_all_parsers(all_parsers)
-elif index == lenP:
-    ids = [int(x.strip())-1 for x in input("Enter the parser ids to grab: ").split(" ")]
+choice = input("Enter your choosed parser: ")
+if " " in choice:
+    ids = [int(x.strip())-1 for x in choice.split(" ")]
     run_multiple_parsers(all_parsers, ids)
 else:
-    run_single_parser(all_parsers[index])
-
+    index = int(choice) - 1
+    if index == lenP:
+        run_all_parsers(all_parsers)
+    else:
+        run_single_parser(all_parsers[index])
 
 
 for file in FILES:
     cleanup(file)
-
