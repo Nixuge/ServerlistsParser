@@ -14,8 +14,11 @@ def run_all_parsers(parser_metas: list[ParserMeta]):
 
 def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int]):
     for index in indexes:
-        if index >= len(indexes):
+        if index >= len(parser_metas):
             print(f"Index too high: {index}")
+            return
+        if index < 0:
+            print(f"Index too low: {index}")
             return
     
     parsers: list[tuple[ParserMeta, BaseParser]] = []

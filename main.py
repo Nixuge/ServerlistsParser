@@ -23,7 +23,7 @@ index = int(input("Enter your choosed parser: ")) - 1
 if index == lenP + 1:
     run_all_parsers(all_parsers)
 elif index == lenP:
-    ids = (int(x.strip()) for x in input("Enter the parser ids to grab: ").split(" "))
+    ids = [int(x.strip())-1 for x in input("Enter the parser ids to grab: ").split(" ")]
     run_multiple_parsers(all_parsers, ids)
 else:
     run_single_parser(all_parsers[index])
