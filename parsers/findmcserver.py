@@ -13,8 +13,10 @@ class FindMcServerParser(BaseParser):
     PRINT_HIDDEN_IPS = True
 
     all_servers: list
+    hidden_ips: set
     def __init__(self) -> None:
         self.all_servers = []
+        self.hidden_ips = set()
 
     def get_parse_everything(self):
         self.isEmpty = False
@@ -22,8 +24,8 @@ class FindMcServerParser(BaseParser):
         while not self.isEmpty:
             self.get_page(page)
             page += 1
-            print(f"Done w page {page}")
-        print("Done parsing !")
+            print(f"\rParsed page {page}...", end="")
+        print("\nDone parsing !")
     
     def get_page(self, page: int) -> str:
         driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
@@ -44,8 +46,7 @@ class FindMcServerParser(BaseParser):
             port = "19132" if bedrock else "25565"
         
         if ip == "IP Address Hidden":
-            if self.PRINT_HIDDEN_IPS:
-                print(f"IP ADRESS HIDDEN: {name}")
+            self.hidden_ips.add(name)
             return
 
         str_port = f":{port}".replace(":19132", "") if bedrock else f":{port}".replace(":25565", "")
@@ -78,6 +79,9 @@ class FindMcServerParser(BaseParser):
                 self.print_ask(name, bedrock_ip, bedrock_port, online_p, max_p, desc, True)
             if java_ip:
                 self.print_ask(name, java_ip, java_port, online_p, max_p, desc, False)
+        
+        if self.PRINT_HIDDEN_IPS:
+            print(f"Hidden IP addresses: {self.hidden_ips}")
 
 def setup() -> ParserMeta:
     return ParserMeta("Official Mojang Serverlist", "findmcserver.com", "1.0", FindMcServerParser)
