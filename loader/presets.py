@@ -14,6 +14,7 @@ def run_all_parsers(parser_metas: list[ParserMeta]):
     run_multiple_parsers(parser_metas, range(0, len(parser_metas)))
 
 def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int]):
+    metas: list[ParserMeta] = []
     for index in indexes:
         if index >= len(parser_metas):
             print(f"Index too high: {index}")
@@ -21,12 +22,16 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
         if index < 0:
             print(f"Index too low: {index}")
             return
+        meta = parser_metas[index]
+        metas.append(meta)
     
-    print(f"Running {len(indexes)} parsers")
+    if len(metas) == 1:
+        print(f"Running 1 parser: {metas[0].name} ({metas[0].version})")
+    else:
+        print(f"Running {len(metas)} parsers: {', '.join([f'{x.name} (v{x.version})' for x in metas])}")
     
     parsers: list[tuple[ParserMeta, BaseParser]] = []
-    for i in indexes:
-        meta = parser_metas[i]
+    for meta in metas:
         parser = meta.parserClass()
         parsers.append((meta, parser))
         print(f"Running parser {meta.name} (v{meta.version}) for {meta.website}")

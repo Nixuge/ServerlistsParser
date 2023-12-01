@@ -18,7 +18,7 @@ for index, parser in enumerate(all_parsers):
 print(f"{lenP+1}: Run all parsers")
 print("=================================")
 
-choice = input("Enter your choosed parser: ")
+choice = input("Enter your choosed parser(s): ")
 if " " in choice:
     ids = [int(x.strip())-1 for x in choice.split(" ")]
     run_multiple_parsers(all_parsers, ids)
