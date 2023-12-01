@@ -10,7 +10,7 @@ def run_single_parser(parser_meta: ParserMeta):
     parser.print_ask_all()
 
 def run_all_parsers(parser_metas: list[ParserMeta]):
-    run_multiple_parsers(parser_metas, range(0, len(parser_metas)-1))
+    run_multiple_parsers(parser_metas, range(0, len(parser_metas)))
 
 def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int]):
     for index in indexes:
