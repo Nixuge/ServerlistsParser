@@ -22,19 +22,25 @@ class Server:
 
 class NameMCParser(BaseParser):
     END_PAGE = 30
-    PRINT_SERVER_COUNT = True
     PRINT_DOWN_SERVERS = True
 
     all_servers: dict[str, Server] # dict to avoid multiple same ips
+    servers_down: set
+    new_servers: int
     def __init__(self) -> None:
         self.all_servers = {}
+        self.servers_down = set()
+        self.new_servers = 0
 
     def get_parse_everything(self):
         for i in range(1, self.END_PAGE+1):
-            print(f"Grabbing page {i}...", end=" ")
+            print(f"\rGrabbing page {i}... (new servers: {self.new_servers})", end="")
             data = self.get_page(i)
             self.parse_elements(data)
-            print()
+        print()
+        if self.PRINT_DOWN_SERVERS:
+            print(f"Servers down: {self.servers_down}")
+
 
     def get_page(self, page: int) -> str:
         driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
@@ -59,8 +65,7 @@ class NameMCParser(BaseParser):
 
             playercount_elem = card.find("span", {"class": "float-end ms-3"})
             if not playercount_elem:
-                if self.PRINT_DOWN_SERVERS:
-                    print("Server down?:", ip, end=" ")
+                self.servers_down.add(ip)
                 continue
             
             playercount = playercount_elem.text.replace(" / ", "/")
@@ -74,8 +79,7 @@ class NameMCParser(BaseParser):
             self.all_servers[ip] = Server(ip, playercount, motd)
             count += 1
         
-        if self.PRINT_SERVER_COUNT:
-            print(f"{count} new servers", end="")
+        self.new_servers += count
     
     def print_ask(self, server: Server):
         print("====================")
@@ -85,8 +89,6 @@ class NameMCParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        if self.PRINT_SERVER_COUNT:
-            print(f"Asking for {len(self.all_servers)} servers")
         for server in self.all_servers.values():
             self.print_ask(server)
 
