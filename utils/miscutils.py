@@ -9,11 +9,17 @@ def only_keep_main_domain(ip: str):
     lenSplit = len(split)
     if lenSplit == 2:
         return split[0]
+    if lenSplit == 1:
+        return split[0]
     return split[-2]
 
 def ask_duplicate(ip: str, bedrock: bool):
     pyperclip.copy(only_keep_main_domain(ip))
-    duplicated = input("is the server a duplicate? ") in ["yes", "y", "oui", "o"]
+    duplicated_answer = input("is the server a duplicate? ")
+    if duplicated_answer in ["r", "s"]: #remove/skip
+        print("skipped.")
+        return
+    duplicated = duplicated_answer in ["yes", "y", "oui", "o"]
     if duplicated:
         if bedrock:
             name = "duplicates_bedrock.txt"
