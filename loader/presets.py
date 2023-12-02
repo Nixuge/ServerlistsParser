@@ -30,12 +30,14 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
     else:
         print(f"Running {len(metas)} parsers: {', '.join([f'{x.name} (v{x.version})' for x in metas])}")
     
+    print("----------")
     parsers: list[tuple[ParserMeta, BaseParser]] = []
     for meta in metas:
         parser = meta.parserClass()
         parsers.append((meta, parser))
         print(f"Running parser {meta.name} (v{meta.version}) for {meta.website}")
         parser.get_parse_everything()
+        print("----------")
     
     for meta, parser in parsers:
         print(f"Asking for parser parser {meta.name}")
