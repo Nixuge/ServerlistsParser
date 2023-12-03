@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 import re
+import socket
 from classes.BaseParser import BaseParser
 
 from classes.ParserMeta import ParserMeta
@@ -8,6 +9,14 @@ from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate, is_already_present
 
 # Good old REALLY DIRTY scraper, been a while since i wrote one like that w splits & regexes mixed.
+
+def is_ipv4(address):
+    try: 
+        socket.inet_aton(address)
+        return True
+    except:
+        return False
+    
 
 @dataclass
 class BlockedServerEntry:
@@ -48,9 +57,18 @@ class BlockedServerParser(BaseParser):
     def print_ask(self, server: BlockedServerEntry):
         if server.ip == "Hostname not yet known" or is_already_present(server.ip) or not '.' in server.ip:
             return
-        if server.ip.endswith(".ddns.net"):
+        if server.ip.endswith("minehut.gg"):
+            print("ip from hosting provider, skipping")
+            return
+        if server.ip.endswith(".ddns.net") or "hopto.org" in server.ip:
             print("ddns server, skipping")
             return
+        if is_ipv4(server.ip):
+            print("is ipv4, skipping")
+            return
+
+        if server.ip.startswith("*."):
+            server.ip = server.ip[2:]
 
         print("====================")
         print(f"ip: {server.ip}")
@@ -65,3 +83,6 @@ class BlockedServerParser(BaseParser):
 def setup() -> ParserMeta:
     return ParserMeta("BlockedServers", "twitter.com/BlockedServers", "0.1", BlockedServerParser)
 
+# Honestly not worth using rn.
+# maybe (MAYBE) when i've implemented mcstatus & a "down server list" in here directly
+1 / 0
