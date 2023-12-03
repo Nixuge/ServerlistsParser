@@ -25,7 +25,7 @@ class FindMcServerParser(BaseParser):
             self.get_page(page)
             page += 1
             print(f"\rParsed page {page}...", end="")
-        print("\nDone parsing !")
+        print(f"Done, got {len(self.all_servers)} new servers.")
     
     def get_page(self, page: int) -> str:
         driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)

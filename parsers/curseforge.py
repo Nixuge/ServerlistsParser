@@ -39,6 +39,7 @@ class CurseForgeParser(BaseParser):
         print()
 
         self.driver.close()
+        print(f"Done, got {len(self.all_servers)} new servers.")
 
 
     def get_page(self, page: int) -> str:

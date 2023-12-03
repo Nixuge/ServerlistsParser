@@ -40,6 +40,7 @@ class NameMCParser(BaseParser):
         print()
         if self.PRINT_DOWN_SERVERS:
             print(f"Servers down: {self.servers_down}")
+        print(f"Done, got {len(self.all_servers)} new servers.")
 
 
     def get_page(self, page: int) -> str:
