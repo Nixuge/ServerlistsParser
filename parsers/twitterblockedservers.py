@@ -9,6 +9,7 @@ from classes.BaseParser import BaseParser
 from classes.ParserMeta import ParserMeta
 
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.motdutils import motd_remove_section_signs
 
 # Good old REALLY DIRTY scraper, been a while since i wrote one like that w splits & regexes mixed.
 
@@ -140,7 +141,7 @@ class BlockedServerParser(BaseParser):
             return
         print("====================")
         print(f"ip: {server.ip}")
-        print(f"motd: {server_status.description}")
+        print(f"motd: {motd_remove_section_signs(server_status.description)}")
         print(f"version name/protocol: {server_status.version.name}, {server_status.version.protocol}")
         print(f"Player: {server_status.players.online}/{server_status.players.max}")
         print(f"ping: {server_status.latency}")
