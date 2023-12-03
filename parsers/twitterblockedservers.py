@@ -54,6 +54,7 @@ class BlockedServerParser(BaseParser):
             try: self.down_servers = open("data/DOWN.txt").read().strip().split("\n")
             except: pass
         self.parse_elements()
+        print(f"Done, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self):
         with open("data/blockedserverstwitter.har") as file:
@@ -135,6 +136,7 @@ class BlockedServerParser(BaseParser):
             dprint("invalid neoprotect hostname.")
             return False
         if "Hosted by Servcity" in motd:
+            self.add_down_server(server.ip)
             return False
         if "--[ Invalid Server ]--" in motd and "Protection by ⚡ Infinity-Filter.com ⚡" in motd:
             self.add_down_server(server.ip)
