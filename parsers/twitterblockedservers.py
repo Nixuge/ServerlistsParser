@@ -19,7 +19,11 @@ def is_ipv4(address):
         return True
     except:
         return False
-    
+
+DO_PRINT = False
+def dprint(*args):
+    if DO_PRINT:
+        print(*args)
 
 @dataclass
 class BlockedServerEntry:
@@ -48,7 +52,7 @@ class BlockedServerParser(BaseParser):
             open("data/DOWN.txt", "a").close()
         else:
             try: self.down_servers = open("data/DOWN.txt").read().strip().split("\n")
-            except Exception as e: print(e)
+            except: pass
         self.parse_elements()
     
     def parse_elements(self):
@@ -64,7 +68,7 @@ class BlockedServerParser(BaseParser):
                 # Handle servers w a name that's clickable
                 correct_url = re.findall('\{\\\\\"display_url\\\\\":\\\\\"([a-zA-Z0-9-\.]*?)\\\\\",\\\\\"expanded_url\\\\\":\\\\\"[a-zA-Z0-9\.\:/-]*?\\\\\",\\\\\"url\\\\\":\\\\\"' + text[1] + '\\\\\"', elem)[0]
 
-            print(f"Processing {index}/{lenelems}")
+            dprint(f"Processing {index}/{lenelems}")
             server = BlockedServerEntry(text[0], correct_url, None)
             good_server = self.check_element_mcstatus(server)
             if good_server:
@@ -72,51 +76,71 @@ class BlockedServerParser(BaseParser):
     
     def check_element_mcstatus(self, server: BlockedServerEntry):
         if not '.' in server.ip:
-            print("invalid ip, skipping")
+            dprint("invalid ip, skipping")
             return
         if server.ip == "Hostname not yet known":
-            print("no hostname known, skipping")
+            dprint("no hostname known, skipping")
             return
         if is_already_present(server.ip):
-            print("already known, skipping")
+            dprint("already known, skipping")
             return
         if server.ip.endswith("minehut.gg"):
-            print("ip from hosting provider, skipping")
+            dprint("ip from hosting provider, skipping")
             return
         if server.ip.endswith(".ddns.net") or "hopto.org" in server.ip:
-            print("ddns server, skipping")
+            dprint("ddns server, skipping")
             return
         if is_ipv4(server.ip):
-            print("is ipv4, skipping")
+            dprint("is ipv4, skipping")
             return
         
         if server.ip in self.down_servers:
-            print(f"server down: {server.ip}")
+            dprint(f"server down: {server.ip}")
             return
         
         working_ip = False
 
         if server.ip.startswith("*."):
-            print("Server starts with a *")
+            dprint("Server starts with a *")
             stripped_ip = server.ip[2:]
             server_status = None
             for prefix in ["", "mc.", "play."]:
                 ip_full = prefix + stripped_ip
-                print(f"Trying {ip_full}")
+                dprint(f"Trying {ip_full}")
                 server_status = self.req_stats(ip_full)
                 if server_status: 
                     working_ip = ip_full
                     break
         else:
-            print(f"Trying {server.ip}")
+            dprint(f"Trying {server.ip}")
             server_status = self.req_stats(server.ip)
             if server_status: working_ip = server.ip
 
         if not server_status:
             self.add_down_server(server.ip)
-            print("NO SERVER STATUS")
+            dprint("NO SERVER STATUS")
             return False
         
+        motd = motd_remove_section_signs(server_status.description)
+        if "Invalid hostname. Please refer to our documentation at docs.tcpshield.com" in motd:
+            self.add_down_server(server.ip)
+            dprint("invalid tcpshield hostname.")
+            return False
+        if "Papyrus.vip - Unknown Host" in motd:
+            self.add_down_server(server.ip)
+            dprint("invalid papyrus hostname.")
+            return False
+        if "NeoProtect > Invalid Hostname!" in motd:
+            self.add_down_server(server.ip)
+            dprint("invalid neoprotect hostname.")
+            return False
+        if "Hosted by Servcity" in motd:
+            return False
+        if "--[ Invalid Server ]--" in motd and "Protection by ⚡ Infinity-Filter.com ⚡" in motd:
+            self.add_down_server(server.ip)
+            dprint("invalid infinityfilter server")
+            return False
+
         return BlockedServerEntry(server.hash, working_ip, server_status)
         
 
@@ -127,21 +151,17 @@ class BlockedServerParser(BaseParser):
 
     def req_stats(self, ip: str):
         try:
-            return mcstatus.JavaServer(ip).status()
+            return mcstatus.JavaServer(ip).status(version=764)
         except:
             return
 
     def print_ask(self, server: BlockedServerEntry):
         server_status = server.status
-        if "§cInvalid hostname. §7Please refer to our documentation at docs.tcpshield.com" in server_status.description:
-            print("invalid tcpshield hostname.")
-            return
-        if "Papyrus.vip§r§b §r§8- §r§cUnknown Host" in server_status.description:
-            print("invalid papyrus hostname.")
-            return
+        motd = motd_remove_section_signs(server_status.description)
+
         print("====================")
         print(f"ip: {server.ip}")
-        print(f"motd: {motd_remove_section_signs(server_status.description)}")
+        print(f"motd: {motd}")
         print(f"version name/protocol: {server_status.version.name}, {server_status.version.protocol}")
         print(f"Player: {server_status.players.online}/{server_status.players.max}")
         print(f"ping: {server_status.latency}")
