@@ -32,6 +32,10 @@ class BlockedServerEntry:
     status: mcstatus.status_response.JavaStatusResponse
 
 class BlockedServerParser(BaseParser):
+    FOLDER_PATH = "data/twitter"
+    SOURCE_PATH = f"{FOLDER_PATH}/blockedserverstwitter.har"
+    DOWN_PATH = f"{FOLDER_PATH}/DOWN.txt"
+
     all_servers: list[BlockedServerEntry]
     down_servers: list[str]
     def __init__(self) -> None:
@@ -39,31 +43,31 @@ class BlockedServerParser(BaseParser):
         self.down_servers = []
 
     def get_parse_everything(self):
-        if not os.path.isdir("data/"):
-            os.makedirs("data/")
-        if not os.path.isfile("data/blockedserverstwitter.har"):
-            open("data/blockedservers.html", "a").close()
+        if not os.path.isdir(self.FOLDER_PATH):
+            os.makedirs(self.FOLDER_PATH)
+        if not os.path.isfile(self.SOURCE_PATH):
+            open(self.SOURCE_PATH, "a").close()
             print("File blockedserverstwitter.har didn't exist. Now created. Please put your data in it.")
             print("To get the data, open the devtools, go to the network tab, search for")
             print("'from:BlockedServers has been unblocked' on twitter, filter requests by 'SearchTimeline', then")
             print("right click>save all as HAR")
             return
-        if not os.path.isfile("data/DOWN.txt"):
-            open("data/DOWN.txt", "a").close()
+        if not os.path.isfile(self.DOWN_PATH):
+            open(self.DOWN_PATH, "a").close()
         else:
-            try: self.down_servers = open("data/DOWN.txt").read().strip().split("\n")
+            try: self.down_servers = open(self.DOWN_PATH).read().strip().split("\n")
             except: pass
         self.parse_elements()
         print(f"Done, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self):
-        with open("data/blockedserverstwitter.har") as file:
+        with open(self.SOURCE_PATH) as file:
             content = file.read()
 
         elems = content.split("has been unblocked by Mojang!")
         lenelems = len(elems[:-1])
         for index, elem in enumerate(elems[:-1]):
-            text = re.findall('"(.{40}) \((.*?)\)', elem)[0]
+            text = re.findall(':\\\\"(.{40}) \((.*?)\)', elem)[0]
             correct_url = text[1]
             if "https://t.co" in text[1]:
                 # Handle servers w a name that's clickable
@@ -148,7 +152,7 @@ class BlockedServerParser(BaseParser):
 
     def add_down_server(self, ip: str):
         self.down_servers.append(ip)
-        with open("data/DOWN.txt", "a") as file:
+        with open(self.DOWN_PATH, "a") as file:
             file.write(f"{ip}\n")
 
     def req_stats(self, ip: str):
