@@ -1,3 +1,4 @@
 a_out/
 *.pyc
 data/
+cache/

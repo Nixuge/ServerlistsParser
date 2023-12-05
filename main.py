@@ -9,6 +9,8 @@ FILES = ("duplicates.txt", "ips.txt", "duplicates_bedrock.txt", "ips_bedrock.txt
 for file in FILES:
     init_file(file)
 
+if not os.path.isdir("cache/"):
+    os.makedirs("cache/")
 if not os.path.isdir("data/"):
     os.makedirs("data/")
 elif os.path.isfile("data/DEV"):

@@ -7,7 +7,11 @@ from classes.BaseParser import BaseParser
 from bs4 import BeautifulSoup, Tag
 
 from classes.ParserMeta import ParserMeta
+from utils.miscutils import ask_duplicate
+from utils.motdutils import motd_remove_section_signs
+from utils.serverchecks import ServerValidator
 
+from mcstatus.status_response import JavaStatusResponse
 
 @dataclass
 class McSrvListEntry:
@@ -15,13 +19,15 @@ class McSrvListEntry:
     country: str
     desc: str
     ip: str
-    playerOnline: int | None
-    playerMax: int | None
+    playersOn: str
+    playersMax: str
     votesMonth: int
     votesAll: int
+    status: JavaStatusResponse
 
 class MinecraftServerListParser(BaseParser):
     MAX_PAGE = 10
+    ALL_PRINTS = False
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
     scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
@@ -38,7 +44,6 @@ class MinecraftServerListParser(BaseParser):
         print()
 
         print(f"Done, got {len(self.all_servers)} new servers.")
-
 
     def get_page(self, page: int) -> str:
         return self.scraper.get(f"https://minecraft-server-list.com/page/{page}/").text
@@ -59,37 +64,34 @@ class MinecraftServerListParser(BaseParser):
             ip = str(rightPart.find("input", {"class": "copylinkinput"})["value"]) # type: ignore
 
             playersOn, playersMax = (x.strip() for x in rightPart.find("span", {"style": "color:blue"}).text.strip().replace("Players Online:", "").split("/")) # type: ignore
-            playersOn = None if playersOn in ("", "?") else int(playersOn)
-            playersMax = None if playersMax in ("", "?") else int(playersMax)
 
             votesMonth, votesAll = rightPart.find_all("span")[-1].text.split("\n") # type: ignore
             votesMonth = int(votesMonth.strip().split(" ")[-1])
             votesAll = int(votesAll.strip().split(" ")[-1])
 
-            # TODO: ADD CHECKS HERE
+            serverCheck = ServerValidator(ip, self.ALL_PRINTS).is_valid_mcstatus()
+            if not serverCheck:
+                continue
 
             self.all_servers[ip] = McSrvListEntry(
                 title, country, desc,
                 ip, playersOn, playersMax, 
-                votesMonth, votesAll
+                votesMonth, votesAll,
+                serverCheck
             )
-            print(self.all_servers[ip])
+            # print(len(self.all_servers))
 
         
     def print_ask(self, server: McSrvListEntry):
-        # if is_already_present(server.ip, False):
-        #     return
-        
-        # if server.playercount == "Offline":
-        #     add_server_dupe("duplicates.txt", server.ip, "down")
-        #     print(f"Skipped {server.ip} (down)")
-        #     return
+        status = server.status
+        print("====================")
+        print(f"name: {server.title}")
+        print(f"ip: {server.ip} ({server.country.upper()})")
+        print(f"players: {status.players.online}/{status.players.max} (excepted {server.playersOn}/{server.playersMax})")
+        print(f"Votes: {server.votesMonth} this month, {server.votesAll} overrall")
+        print(f"MOTD: {motd_remove_section_signs(status.description)}")
 
-        # print("====================")
-        # print(f"name: {server.name}")
-        # print(f"ip: {server.ip}, {server.playercount}")
-
-        # ask_duplicate(server.ip, False)
+        ask_duplicate(server.ip, False)
         pass
     
     def print_ask_all(self):
