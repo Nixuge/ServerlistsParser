@@ -26,7 +26,7 @@ class McSrvListEntry:
     status: JavaStatusResponse
 
 class MinecraftServerListParser(BaseParser):
-    MAX_PAGE = 10
+    MAX_PAGE = 20
     ALL_PRINTS = False
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
     scraper: cloudscraper.CloudScraper
@@ -36,7 +36,7 @@ class MinecraftServerListParser(BaseParser):
 
     def get_parse_everything(self):
         self.is_empty = False
-        for page in range(1, self.MAX_PAGE+1):
+        for page in range(13, self.MAX_PAGE+1):
             print(f"\rGrabbing page {page}...", end="")
             data = self.get_page(page)
             self.parse_elements(data)

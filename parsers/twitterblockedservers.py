@@ -67,14 +67,14 @@ class BlockedServerParser(BaseParser):
         elems = content.split("has been unblocked by Mojang!")
         lenelems = len(elems[:-1])
         for index, elem in enumerate(elems[:-1]):
-            text = re.findall(':\\\\"(.{40}) \((.*?)\)', elem)[0]
+            text = re.findall(':\\\\"(.{40}) \((.*?)\)', elem)[0] # type: ignore
             correct_url = text[1]
             if "https://t.co" in text[1]:
                 # Handle servers w a name that's clickable
-                correct_url = re.findall('\{\\\\\"display_url\\\\\":\\\\\"([a-zA-Z0-9-\.]*?)\\\\\",\\\\\"expanded_url\\\\\":\\\\\"[a-zA-Z0-9\.\:/-]*?\\\\\",\\\\\"url\\\\\":\\\\\"' + text[1] + '\\\\\"', elem)[0]
+                correct_url = re.findall('\{\\\\\"display_url\\\\\":\\\\\"([a-zA-Z0-9-\.]*?)\\\\\",\\\\\"expanded_url\\\\\":\\\\\"[a-zA-Z0-9\.\:/-]*?\\\\\",\\\\\"url\\\\\":\\\\\"' + text[1] + '\\\\\"', elem)[0] # type: ignore
 
             dprint(f"Processing {index}/{lenelems}")
-            server = BlockedServerEntry(text[0], correct_url, None)
+            server = BlockedServerEntry(text[0], correct_url, None) # type: ignore
             good_server = self.check_element_mcstatus(server)
             if good_server:
                 self.all_servers.append(good_server)
@@ -147,7 +147,7 @@ class BlockedServerParser(BaseParser):
             dprint("invalid infinityfilter server")
             return False
 
-        return BlockedServerEntry(server.hash, working_ip, server_status)
+        return BlockedServerEntry(server.hash, working_ip, server_status) # type: ignore
         
 
     def add_down_server(self, ip: str):
