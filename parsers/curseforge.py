@@ -4,9 +4,8 @@ from classes.BaseParser import BaseParser
 from bs4 import BeautifulSoup, Tag
 
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from classes.ParserMeta import ParserMeta
 from utils.fileutils import add_server_dupe
@@ -57,14 +56,14 @@ class CurseForgeParser(BaseParser):
             self.is_empty = True
         for card in cards:
             header = card.find("div", {"class": "mb-3 flex w-full items-center lg:mb-0 lg:w-auto"})
-            name = header.find("h3", {"class": "mr-2 font-bold text-brand-900 lg:mr-3"}).text
-            ip = header.find("p", {"class": "text-brand-700 lg:hidden"}).text
+            name = header.find("h3", {"class": "mr-2 font-bold text-brand-900 lg:mr-3"}).text # type: ignore
+            ip = header.find("p", {"class": "text-brand-700 lg:hidden"}).text # type: ignore
 
             playercount = card.find("p", {"class": "text-approved"})
             if not playercount:
                 playercount = card.find("p", {"class": "text-error"})
 
-            playercount = playercount.text.replace(" Playing", "").replace(",", " ")
+            playercount = playercount.text.replace(" Playing", "").replace(",", " ") # type: ignore
             
             self.all_servers.append(Server(ip, name, playercount))
 

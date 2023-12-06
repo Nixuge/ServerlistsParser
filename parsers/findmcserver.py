@@ -27,7 +27,7 @@ class FindMcServerParser(BaseParser):
             print(f"\rParsed page {page}...", end="")
         print(f"Done, got {len(self.all_servers)} new servers.")
     
-    def get_page(self, page: int) -> str:
+    def get_page(self, page: int):
         driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
         driver.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc")
         data = json.loads(driver.find_element(By.CSS_SELECTOR, "pre").text)["data"]
@@ -37,9 +37,6 @@ class FindMcServerParser(BaseParser):
             self.isEmpty = True
 
         self.all_servers += data
-    
-    def parse_elements(self, data: str):
-        pass #unused (json is enough)
     
     def print_ask(self, name, ip, port, online_p, max_p, desc, bedrock):
         if not port:
