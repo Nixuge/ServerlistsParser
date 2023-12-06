@@ -1,3 +1,4 @@
+from genericpath import isfile
 import os
 import socket
 from typing import Literal
@@ -15,6 +16,25 @@ def is_ipv4(address):
     except:
         return False
 
+class FailedServers:
+    failed: list[str]
+    def __init__(self) -> None:
+        if not os.path.isfile("cache/statusfailed.txt"):
+            open("cache/statusfailed.txt", "a").close()
+            self.failed = []
+        else:
+            with open("cache/statusfailed.txt") as file:
+                self.failed = file.read().strip().split("\n")
+
+    def is_failed(self, ip: str) -> bool:
+        return ip in self.failed
+    
+    def add_failed(self, ip: str):
+        self.failed.append(ip)
+        with open("cache/statusfailed.txt", "a") as file:
+            file.write(f"{ip}\n")
+
+
 class ServerValidator:
     ip: str
     print_reason: bool
@@ -26,8 +46,12 @@ class ServerValidator:
         if not self.is_valid():
             return False
         
+        if FAILED_SERVERS.is_failed(self.ip):
+            return False
+        
         try:
-            status = mcstatus.JavaServer(self.ip).status()
+            status = mcstatus.JavaServer.lookup(self.ip).status(version=764)
+
             motd = motd_remove_section_signs(status.description)
             motd_valid, motd_valid_reason = MOTD_VALIDATOR.is_motd_valid(self.ip, motd)
             if not motd_valid:
@@ -35,6 +59,7 @@ class ServerValidator:
                 return False
             return status
         except:
+            FAILED_SERVERS.add_failed(self.ip)
             return False
 
 
@@ -55,18 +80,22 @@ class ServerValidator:
         def dprint(*args): 
             if self.print_reason: print(*args)
         
-        ip = self.ip
-
-        if is_already_present(ip):
+        if is_already_present(self.ip):
             dprint("already known, skipping")
             return False
-        if ip.endswith("minehut.gg"):
+        
+        if ":" in self.ip:
+            ip_alone = self.ip.split(":")[0]
+        else:
+            ip_alone = self.ip
+
+        if ip_alone.endswith("minehut.gg"):
             dprint("ip from hosting provider, skipping")
             return False
-        if ip.endswith(".ddns.net"):
+        if ip_alone.endswith(".ddns.net"):
             dprint("ddns server, skipping")
             return False
-        if is_ipv4(ip):
+        if is_ipv4(ip_alone):
             dprint("is ipv4, skipping")
             return False
         
@@ -114,3 +143,4 @@ class MotdValidator:
         return True, None
 
 MOTD_VALIDATOR = MotdValidator()
+FAILED_SERVERS = FailedServers()
