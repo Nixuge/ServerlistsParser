@@ -12,6 +12,7 @@ from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
+import cloudscraper
 
 @dataclass
 class Server:
@@ -26,10 +27,12 @@ class NameMCParser(BaseParser):
     all_servers: dict[str, Server] # dict to avoid multiple same ips
     servers_down: set
     new_servers: int
+    scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
         self.all_servers = {}
         self.servers_down = set()
         self.new_servers = 0
+        self.scraper = cloudscraper.create_scraper()
 
     def get_parse_everything(self):
         for i in range(1, self.END_PAGE+1):
@@ -43,14 +46,15 @@ class NameMCParser(BaseParser):
 
 
     def get_page(self, page: int) -> str:
-        driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
-        driver.get(f"https://namemc.com/minecraft-servers?page={page}")
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
-        )
-        data = driver.page_source
-        driver.close()
-        return data
+        return self.scraper.get(f"https://namemc.com/minecraft-servers?page={page}").text
+        # driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+        # driver.get(f"https://namemc.com/minecraft-servers?page={page}")
+        # WebDriverWait(driver, 10).until(
+        #     EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
+        # )
+        # data = driver.page_source
+        # driver.close()
+        # return data
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')

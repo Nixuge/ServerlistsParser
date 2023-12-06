@@ -8,15 +8,18 @@ from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
+import cloudscraper
 
 class FindMcServerParser(BaseParser):
     PRINT_HIDDEN_IPS = True
 
     all_servers: list
     hidden_ips: set
+    scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
         self.all_servers = []
         self.hidden_ips = set()
+        self.scraper = cloudscraper.create_scraper()
 
     def get_parse_everything(self):
         self.isEmpty = False
@@ -28,10 +31,12 @@ class FindMcServerParser(BaseParser):
         print(f"Done, got {len(self.all_servers)} new servers.")
     
     def get_page(self, page: int):
-        driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
-        driver.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc")
-        data = json.loads(driver.find_element(By.CSS_SELECTOR, "pre").text)["data"]
-        driver.close()
+        data = self.scraper.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc").json()["data"]
+
+        # driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+        # driver.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc")
+        # data = json.loads(driver.find_element(By.CSS_SELECTOR, "pre").text)["data"]
+        # driver.close()
 
         if len(data) == 0:
             self.isEmpty = True

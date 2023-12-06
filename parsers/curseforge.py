@@ -13,7 +13,10 @@ from utils.fileutils import add_server_dupe
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
-
+# Note:
+# Unfortunately, due to some (probably on purpose) shitty webpage from curse,
+# we have to use Selenium if we want to have something halfway decent, since the thing
+# seems to be loaded using js from a quick glance.
 @dataclass
 class Server:
     ip: str
