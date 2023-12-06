@@ -35,10 +35,16 @@ def ask_duplicate(ip: str, bedrock: bool):
             name = "ips.txt"
         add_server(name, ip)
 
+def remove_port(ip: str) -> str:
+    if not ":" in ip:
+        return ip
+    return ip.split(":")[0]
 
-def remove_subdomain(ip: str):
+def remove_subdomain(ip: str) -> str:
     split = ip.split(".")[1:]
     if len(split) == 1:
+        return ip
+    if split[0] == "com": # eg mush.co.br
         return ip
     return '.'.join(split)
 
@@ -54,12 +60,12 @@ def is_already_present(ip: str, bedrock: bool = False):
     if ip in used_list:
         return True
 
-    ip_noprefix = remove_subdomain(ip)
+    ip_noprefix = remove_port(remove_subdomain(ip))
     if ip_noprefix in used_list:
         return True
 
     for server in used_list:
-        server_noprefix = remove_subdomain(server)
+        server_noprefix = remove_port(remove_subdomain(server))
         if server_noprefix == ip or server_noprefix == ip_noprefix:
             return True
 

@@ -36,7 +36,7 @@ print("=================================")
 
 choice = input("Enter your choosed parser(s): ")
 if " " in choice:
-    ids = [int(x.strip())-1 for x in choice.split(" ")]
+    ids = [int(x.strip())-1 for x in choice.strip().split(" ")]
     run_multiple_parsers(all_parsers, ids)
 else:
     index = int(choice) - 1
