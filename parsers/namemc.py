@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import time
 
 from bs4 import BeautifulSoup
 
@@ -43,7 +44,13 @@ class NameMCParser(CloudflareParser):
     def get_page_selenium(self, page: int) -> str:
         if not self.selenium: raise Exception()
         self.clear_selenium_data()
-        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
+        good = False
+        while not good:
+            try:
+                self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
+                good = True
+            except: time.sleep(1)
+
         # tryexcept temp test, to see if it works once i get cloudflare flagged again
         try:
             WebDriverWait(self.selenium, 5).until(
