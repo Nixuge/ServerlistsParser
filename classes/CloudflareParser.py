@@ -27,7 +27,8 @@ class CloudflareParser(BaseParser):
         # check for cloudflare
         if "Just a moment..." in data and "Enable JavaScript and cookies to continue" in data:
             print(f"  [Cloudflare flagged as of page {page}]", end="")
-            self.selenium = Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+            # self.selenium = Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+            self.selenium = Firefox()
             return self.get_page_selenium(page)
         
         return data

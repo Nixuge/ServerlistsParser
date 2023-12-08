@@ -1,10 +1,7 @@
 from dataclasses import dataclass
-import time
-from classes.BaseParser import BaseParser
 
 from bs4 import BeautifulSoup
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,7 +9,6 @@ from classes.CloudflareParser import CloudflareParser
 from classes.ParserMeta import ParserMeta
 
 from utils.miscutils import ask_duplicate, is_already_present
-from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
 @dataclass
 class Server:
@@ -38,7 +34,7 @@ class NameMCParser(CloudflareParser):
             print(f"\rGrabbing page {i}... (new servers: {self.new_servers})", end="")
             data = self.get_page(i)
             self.parse_elements(data)
-            
+
         if self.PRINT_DOWN_SERVERS:
             print(f"Servers down: {self.servers_down}")
         print(f"Done, got {len(self.all_servers)} new servers.")

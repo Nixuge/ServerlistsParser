@@ -2,9 +2,13 @@ from bs4 import BeautifulSoup, Tag
 import cloudscraper
 
 from dataclasses import dataclass
-from classes.BaseParser import BaseParser
 
 from bs4 import BeautifulSoup, Tag
+from classes.CloudflareParser import CloudflareParser
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate
@@ -25,14 +29,13 @@ class McSrvListEntry:
     votesAll: int
     status: JavaStatusResponse
 
-class MinecraftServerListParser(BaseParser):
-    MAX_PAGE = 25
+class MinecraftServerListParser(CloudflareParser):
+    MAX_PAGE = 30
     ALL_PRINTS = False
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
-    scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
+        super().__init__("https://minecraft-server-list.com/page/%PAGE%/")
         self.all_servers = {}
-        self.scraper = cloudscraper.create_scraper()
 
     def get_parse_everything(self):
         self.is_empty = False
@@ -45,8 +48,13 @@ class MinecraftServerListParser(BaseParser):
 
         print(f"Done, got {len(self.all_servers)} new servers.")
 
-    def get_page(self, page: int) -> str:
-        return self.scraper.get(f"https://minecraft-server-list.com/page/{page}/").text
+    def get_page_selenium(self, page: int) -> str:
+        if not self.selenium: raise Exception()
+        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
+        WebDriverWait(self.selenium, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "serverdatadiv1"))
+        )
+        return self.selenium.page_source
     
     # type: ignore
     def parse_elements(self, data: str):
