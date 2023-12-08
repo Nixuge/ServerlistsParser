@@ -24,3 +24,8 @@ class BaseParser:
     @abstractmethod
     def print_ask_all(self):
         raise Exception("Cannot call abstract method")
+    
+    # to be used to eg close selenium sessions
+    # automatically called at the end of a module
+    def end(self):
+        pass

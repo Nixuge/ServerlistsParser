@@ -44,9 +44,14 @@ class NameMCParser(CloudflareParser):
         if not self.selenium: raise Exception()
         self.clear_selenium_data()
         self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
-        WebDriverWait(self.selenium, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
-        )
+        # tryexcept temp test, to see if it works once i get cloudflare flagged again
+        try:
+            WebDriverWait(self.selenium, 5).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
+            )
+        except:
+            self.get_page_selenium(page)
+
         data = self.selenium.page_source
         return data
     

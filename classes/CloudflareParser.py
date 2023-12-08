@@ -12,7 +12,7 @@ class CloudflareParser(BaseParser):
     page_url: str
     def __init__(self, page_url: str, always_use_selenium: bool = False) -> None:
         self.scraper = cloudscraper.create_scraper()
-        self.selenium = Firefox() if always_use_selenium else None
+        self.selenium = Firefox(options=SELENIUM_FIREFOX_OPTIONS) if always_use_selenium else None
         self.page_url = page_url
 
     def clear_selenium_data(self):
@@ -31,6 +31,11 @@ class CloudflareParser(BaseParser):
             return self.get_page_selenium(page)
         
         return data
+    
+    def end(self):
+        if self.selenium:
+            self.selenium.close()
+            print("closed selenium session")
 
     @abstractmethod
     def get_page_selenium(self, *args) -> str:
