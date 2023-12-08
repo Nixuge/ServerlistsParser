@@ -15,6 +15,10 @@ class CloudflareParser(BaseParser):
         self.selenium = None
         self.page_url = page_url
 
+    def clear_selenium_data(self):
+        if self.selenium == None: return
+        self.selenium.delete_all_cookies()
+
     def get_page(self, page: int) -> str:
         if self.selenium != None:
             return self.get_page_selenium(page)
@@ -22,6 +26,7 @@ class CloudflareParser(BaseParser):
 
         # check for cloudflare
         if "Just a moment..." in data and "Enable JavaScript and cookies to continue" in data:
+            print(f"  [Cloudflare flagged as of page {page}]", end="")
             self.selenium = Firefox(options=SELENIUM_FIREFOX_OPTIONS)
             return self.get_page_selenium(page)
         

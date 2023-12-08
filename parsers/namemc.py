@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import time
 from classes.BaseParser import BaseParser
 
 from bs4 import BeautifulSoup
@@ -7,12 +8,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from classes.CloudflareParser import CloudflareParser
 from classes.ParserMeta import ParserMeta
 
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
-
-import cloudscraper
 
 @dataclass
 class Server:
@@ -20,41 +20,39 @@ class Server:
     playercount: int
     motd: str
 
-class NameMCParser(BaseParser):
+class NameMCParser(CloudflareParser):
     END_PAGE = 30
     PRINT_DOWN_SERVERS = True
 
     all_servers: dict[str, Server] # dict to avoid multiple same ips
     servers_down: set
     new_servers: int
-    scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
+        super().__init__(f"https://namemc.com/minecraft-servers?page=%PAGE%")
         self.all_servers = {}
         self.servers_down = set()
         self.new_servers = 0
-        self.scraper = cloudscraper.create_scraper()
 
     def get_parse_everything(self):
         for i in range(1, self.END_PAGE+1):
             print(f"\rGrabbing page {i}... (new servers: {self.new_servers})", end="")
             data = self.get_page(i)
             self.parse_elements(data)
-        print()
+            
         if self.PRINT_DOWN_SERVERS:
             print(f"Servers down: {self.servers_down}")
         print(f"Done, got {len(self.all_servers)} new servers.")
 
 
-    def get_page(self, page: int) -> str:
-        return self.scraper.get(f"https://namemc.com/minecraft-servers?page={page}").text
-        # driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
-        # driver.get(f"https://namemc.com/minecraft-servers?page={page}")
-        # WebDriverWait(driver, 10).until(
-        #     EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
-        # )
-        # data = driver.page_source
-        # driver.close()
-        # return data
+    def get_page_selenium(self, page: int) -> str:
+        if not self.selenium: raise Exception()
+        self.clear_selenium_data()
+        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
+        WebDriverWait(self.selenium, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
+        )
+        data = self.selenium.page_source
+        return data
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
