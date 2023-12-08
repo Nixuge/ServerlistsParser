@@ -7,11 +7,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from classes.CloudflareParser import CloudflareParser
 from classes.ParserMeta import ParserMeta
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
-from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
 # Note:
 # Unfortunately, due to some (probably on purpose) shitty webpage from curse,
@@ -23,12 +23,11 @@ class Server:
     name: str
     playercount: str
 
-class CurseForgeParser(BaseParser):
+class CurseForgeParser(CloudflareParser):
     all_servers: list 
-    driver: webdriver.Firefox
     def __init__(self) -> None:
+        super().__init__("https://www.curseforge.com/servers/minecraft?page=%PAGE%", always_use_selenium=True)
         self.all_servers = []
-        self.driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
 
     def get_parse_everything(self):
         self.is_empty = False
@@ -40,16 +39,17 @@ class CurseForgeParser(BaseParser):
             page += 1
         print()
 
-        self.driver.close()
+        # self.driver.close()
         print(f"Done, got {len(self.all_servers)} new servers.")
 
 
-    def get_page(self, page: int) -> str:
-        self.driver.get(f"https://www.curseforge.com/servers/minecraft?page={page}")
-        WebDriverWait(self.driver, 5).until(
+    def get_page_selenium(self, page: int) -> str:
+        if not self.selenium: raise Exception()
+        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
+        WebDriverWait(self.selenium, 5).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/main/div[2]/div/div[1]/div[1]/div/div'))
         )
-        data = self.driver.page_source
+        data = self.selenium.page_source
         return data
     
     def parse_elements(self, data: str):
