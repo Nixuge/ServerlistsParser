@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from classes.BaseParser import BaseParser
 
 from bs4 import BeautifulSoup, Tag
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 from classes.CloudflareParser import CloudflareParser
+from classes.CloudflareParser import CFSeleniumOptions
 from classes.ParserMeta import ParserMeta
 from utils.fileutils import add_server_dupe
 
@@ -26,7 +24,10 @@ class Server:
 class CurseForgeParser(CloudflareParser):
     all_servers: list 
     def __init__(self) -> None:
-        super().__init__("https://www.curseforge.com/servers/minecraft?page=%PAGE%", always_use_selenium=True)
+        super().__init__(
+            "https://www.curseforge.com/servers/minecraft?page=%PAGE%", 
+            CFSeleniumOptions((By.XPATH, '/html/body/div[1]/div/main/div[2]/div/div[1]/div[1]/div/div'), always_use_selenium=True)
+        )
         self.all_servers = []
 
     def get_parse_everything(self):
@@ -41,16 +42,6 @@ class CurseForgeParser(CloudflareParser):
 
         # self.driver.close()
         print(f"Done, got {len(self.all_servers)} new servers.")
-
-
-    def get_page_selenium(self, page: int) -> str:
-        if not self.selenium: raise Exception()
-        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
-        WebDriverWait(self.selenium, 5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/main/div[2]/div/div[1]/div[1]/div/div'))
-        )
-        data = self.selenium.page_source
-        return data
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')

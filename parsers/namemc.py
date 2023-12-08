@@ -1,12 +1,9 @@
 from dataclasses import dataclass
-import time
 
 from bs4 import BeautifulSoup
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from classes.CloudflareParser import CloudflareParser
+from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 
 from utils.miscutils import ask_duplicate, is_already_present
@@ -25,7 +22,10 @@ class NameMCParser(CloudflareParser):
     servers_down: set
     new_servers: int
     def __init__(self) -> None:
-        super().__init__(f"https://namemc.com/minecraft-servers?page=%PAGE%")
+        super().__init__(
+            f"https://namemc.com/minecraft-servers?page=%PAGE%", 
+            CFSeleniumOptions((By.CLASS_NAME, "mb-2"), clear_every_request=True)
+        )
         self.all_servers = {}
         self.servers_down = set()
         self.new_servers = 0
@@ -40,27 +40,6 @@ class NameMCParser(CloudflareParser):
             print(f"Servers down: {self.servers_down}")
         print(f"Done, got {len(self.all_servers)} new servers.")
 
-
-    def get_page_selenium(self, page: int) -> str:
-        if not self.selenium: raise Exception()
-        self.clear_selenium_data()
-        good = False
-        while not good:
-            try:
-                self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
-                good = True
-            except: time.sleep(1)
-
-        # tryexcept temp test, to see if it works once i get cloudflare flagged again
-        try:
-            WebDriverWait(self.selenium, 5).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "mb-2"))
-            )
-        except:
-            self.get_page_selenium(page)
-
-        data = self.selenium.page_source
-        return data
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')

@@ -1,14 +1,11 @@
 from bs4 import BeautifulSoup, Tag
-import cloudscraper
 
 from dataclasses import dataclass
 
 from bs4 import BeautifulSoup, Tag
-from classes.CloudflareParser import CloudflareParser
+from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate
@@ -34,7 +31,7 @@ class MinecraftServerListParser(CloudflareParser):
     ALL_PRINTS = False
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
     def __init__(self) -> None:
-        super().__init__("https://minecraft-server-list.com/page/%PAGE%/")
+        super().__init__("https://minecraft-server-list.com/page/%PAGE%/", CFSeleniumOptions((By.CLASS_NAME, "serverdatadiv1")))
         self.all_servers = {}
 
     def get_parse_everything(self):
@@ -48,14 +45,6 @@ class MinecraftServerListParser(CloudflareParser):
 
         print(f"Done, got {len(self.all_servers)} new servers.")
 
-    def get_page_selenium(self, page: int) -> str:
-        if not self.selenium: raise Exception()
-        self.selenium.get(self.page_url.replace("%PAGE%", str(page)))
-        WebDriverWait(self.selenium, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "serverdatadiv1"))
-        )
-        return self.selenium.page_source
-    
     # type: ignore
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
