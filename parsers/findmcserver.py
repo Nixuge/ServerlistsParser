@@ -1,46 +1,45 @@
 import json
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
-from classes.BaseParser import BaseParser
+from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate, is_already_present
-from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
-import cloudscraper
 
-class FindMcServerParser(BaseParser):
+class FindMcServerParser(CloudflareParser):
     PRINT_HIDDEN_IPS = True
 
     all_servers: list
     hidden_ips: set
-    scraper: cloudscraper.CloudScraper
     def __init__(self) -> None:
+        super().__init__(
+            "https://findmcserver.com/api/servers?pageNumber=%PAGE%&pageSize=15&sortBy=name_asc",
+            CFSeleniumOptions((By.CSS_SELECTOR, "pre"))
+        )
         self.all_servers = []
         self.hidden_ips = set()
-        self.scraper = cloudscraper.create_scraper()
 
     def get_parse_everything(self):
         self.isEmpty = False
         page = 0
         while not self.isEmpty:
-            self.get_page(page)
+            data = self.get_page(page)
             page += 1
+            self.parse_elements(data)
             print(f"\rParsed page {page}...", end="")
         print(f"Done, got {len(self.all_servers)} new servers.")
     
-    def get_page(self, page: int):
-        data = self.scraper.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc").json()["data"]
-
-        # driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
-        # driver.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc")
-        # data = json.loads(driver.find_element(By.CSS_SELECTOR, "pre").text)["data"]
-        # driver.close()
-
+    def parse_elements(self, data: str):
+        if "<html>" in data:
+            raise Exception("not yet implemented, see below on source")
+            # previous selenium implementation, to redo w beautifulsoup or similar if this actually triggers CF & switches to selenium (which i havent been able to reproduce)
+            # driver = webdriver.Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+            # driver.get(f"https://findmcserver.com/api/servers?pageNumber={page}&pageSize=15&sortBy=name_asc")
+            # data = json.loads(driver.find_element(By.CSS_SELECTOR, "pre").text)["data"]
+            # driver.close()
+        data = json.loads(data)["data"]
         if len(data) == 0:
             self.isEmpty = True
-
         self.all_servers += data
     
     def print_ask(self, name, ip, port, online_p, max_p, desc, bedrock):
