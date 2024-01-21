@@ -1,11 +1,11 @@
-import json
+import pyjson5
 from selenium.webdriver.firefox.options import Options
 
 JSON_PATH = "/home/nix/coding/mcstatusarchive/servers.json"
 OUTPUT_PATH = "a_out"
 
 with open(JSON_PATH, "r") as file:
-    json_data = json.load(file)
+    json_data = pyjson5.load(file)
 
 JAVA_LIST = json_data["java_list"] + list(json_data["java"].values()) + list(json_data["duplicates"].keys())
 JAVA_LIST = [x.lower() for x in JAVA_LIST]
