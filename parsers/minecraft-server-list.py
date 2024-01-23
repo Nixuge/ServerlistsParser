@@ -89,12 +89,10 @@ class MinecraftServerListParser(CloudflareParser):
         print(f"MOTD: {motd_remove_section_signs(status.description)}")
 
         ask_duplicate(server.ip, False)
-        pass
     
     def print_ask_all(self):
         for server in self.all_servers.values():
             self.print_ask(server)
-        pass
 
 def setup() -> ParserMeta:
     return ParserMeta("MinecraftServerList", "minecraft-server-list.com", "1.0", MinecraftServerListParser)

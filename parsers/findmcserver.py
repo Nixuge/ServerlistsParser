@@ -1,15 +1,27 @@
+from dataclasses import dataclass
 import json
 from selenium.webdriver.common.by import By
 
 from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.serverchecks import ServerValidator
 
+@dataclass
+class Server:
+    name: str
+    playercount: int
+    max_players: int
+    desc: str
+    ip: str
+    port: str
+    is_bedrock: bool
+    ip_port: str = ""
 
 class FindMcServerParser(CloudflareParser):
     PRINT_HIDDEN_IPS = True
 
-    all_servers: list
+    all_servers: list[Server]
     hidden_ips: set
     def __init__(self) -> None:
         super().__init__(
@@ -30,6 +42,7 @@ class FindMcServerParser(CloudflareParser):
         print(f"Done, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self, data: str):
+        servers_raw = []
         if "<html>" in data:
             raise Exception("not yet implemented, see below on source")
             # previous selenium implementation, to redo w beautifulsoup or similar if this actually triggers CF & switches to selenium (which i havent been able to reproduce)
@@ -40,48 +53,63 @@ class FindMcServerParser(CloudflareParser):
         data = json.loads(data)["data"]
         if len(data) == 0:
             self.isEmpty = True
-        self.all_servers += data
-        # TODO: somehow handle ServerValidator here (would mean also adding bedrock validator)
-    
-    def print_ask(self, name, ip, port, online_p, max_p, desc, bedrock):
-        if not port:
-            port = "19132" if bedrock else "25565"
+        servers_raw += data
         
-        if ip == "IP Address Hidden":
-            self.hidden_ips.add(name)
-            return
-
-        str_port = f":{port}".replace(":19132", "") if bedrock else f":{port}".replace(":25565", "")
-        ip_port = f"{ip}{str_port}"
-        if is_already_present(ip_port, bedrock):
-            return
+        # Parse raw json to Server objects
+        servers_parsed: list[Server] = []
+        for server in servers_raw:
+            same_params = (
+                server["name"], 
+                int(server["currentOnlinePlayers"]),
+                int(server["currentMaxPlayers"]),
+                server["shortDescription"],
+            )
+            if server["bedrockAddress"]:
+                servers_parsed.append(Server(*same_params, server["bedrockAddress"], server["bedrockPort"], True))
+            if server["javaAddress"]:
+                servers_parsed.append(Server(*same_params, server["javaAddress"], server["javaPort"], False))
         
-        v_str = "BEDROCK" if bedrock else "JAVA"
+        # Filter out bad servers
+        for server in servers_parsed:
+            # Set port
+            if not server.port: server.port = "19132" if server.is_bedrock else "25565"
+            # Set ip_port
+            to_replace = ":19132" if server.is_bedrock else ":25565"
+            server.ip_port = f"{server.ip}:{server.port}".replace(to_replace, "")
+            
+            # Hidden IP check
+            if server.ip == "IP Address Hidden":
+                self.hidden_ips.add(server.name)
+                continue
+            
+            # If bedrock, only run already_present check
+            if server.is_bedrock:
+                if is_already_present(server.ip_port, True):
+                    continue
+            # Otherwise run whole ServerValidator on Java servers
+            else:
+                serverCheck = ServerValidator(server.ip_port, self.PRINT_HIDDEN_IPS).is_valid_mcstatus()
+                if not serverCheck:
+                    continue
+            
+            self.all_servers.append(server)
+        
+            
+    def print_ask(self, server: Server):
+        v_str = "BEDROCK" if server.is_bedrock else "JAVA"
 
         print("====================")
-        print(f"Name: {name} | {v_str}")
-        print(f"ip: {ip_port}, {online_p}/{max_p}")
-        print(f"desc: {desc}")
+        print(f"Name: {server.name} | {v_str}")
+        print(f"ip: {server.ip_port}, {server.playercount}/{server.max_players}")
+        print(f"desc: {server.desc}")
         print("====================")
-        ask_duplicate(f"{ip_port}", bedrock)
+        ask_duplicate(f"{server.ip_port}", server.is_bedrock)
     
     def print_ask_all(self):
-        for elem in self.all_servers:
-            max_p = elem["currentMaxPlayers"]
-            online_p = elem["currentOnlinePlayers"]
-            name = elem["name"]
-            desc = elem["shortDescription"]
-            
-            bedrock_ip = elem["bedrockAddress"]
-            bedrock_port = elem["bedrockPort"]
-            java_ip = elem["javaAddress"]
-            java_port = elem["javaPort"]
-            
-            if bedrock_ip:
-                self.print_ask(name, bedrock_ip, bedrock_port, online_p, max_p, desc, True)
-            if java_ip:
-                self.print_ask(name, java_ip, java_port, online_p, max_p, desc, False)
+        for server in self.all_servers:
+            self.print_ask(server)
         
+        # Can be removed here, since it's now grabbed in parse_elements
         if self.PRINT_HIDDEN_IPS:
             print(f"Hidden IP addresses: {self.hidden_ips}")
 
