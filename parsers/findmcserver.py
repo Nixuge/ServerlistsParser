@@ -41,6 +41,7 @@ class FindMcServerParser(CloudflareParser):
         if len(data) == 0:
             self.isEmpty = True
         self.all_servers += data
+        # TODO: somehow handle ServerValidator here (would mean also adding bedrock validator)
     
     def print_ask(self, name, ip, port, online_p, max_p, desc, bedrock):
         if not port:

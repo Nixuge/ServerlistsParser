@@ -10,6 +10,7 @@ from classes.ParserMeta import ParserMeta
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.serverchecks import ServerValidator
 
 # Note:
 # Unfortunately, due to some (probably on purpose) shitty webpage from curse,
@@ -59,17 +60,18 @@ class CurseForgeParser(CloudflareParser):
 
             playercount = playercount.text.replace(" Playing", "").replace(",", " ") # type: ignore
             
+            serverCheck = ServerValidator(ip, True).is_valid_mcstatus()
+            if not serverCheck:
+                continue
+            
+            if playercount == "Offline":
+                add_server_dupe("duplicates.txt", ip, "down")
+                print(f"Skipped {ip} (down)")
+            
+            
             self.all_servers.append(Server(ip, name, playercount))
 
     def print_ask(self, server: Server):
-        if is_already_present(server.ip, False):
-            return
-        
-        if server.playercount == "Offline":
-            add_server_dupe("duplicates.txt", server.ip, "down")
-            print(f"Skipped {server.ip} (down)")
-            return
-
         print("====================")
         print(f"name: {server.name}")
         print(f"ip: {server.ip}, {server.playercount}")

@@ -7,6 +7,7 @@ from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.serverchecks import ServerValidator
 
 @dataclass
 class Server:
@@ -65,6 +66,10 @@ class NameMCParser(CloudflareParser):
             else:
                 motd = motd_elem[2].text.replace("\n", "----").strip()
 
+            serverCheck = ServerValidator(ip, self.PRINT_DOWN_SERVERS).is_valid_mcstatus()
+            if not serverCheck:
+                continue
+            
             self.all_servers[ip] = Server(ip, playercount, motd)
             count += 1
         
