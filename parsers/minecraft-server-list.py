@@ -27,16 +27,24 @@ class McSrvListEntry:
     status: JavaStatusResponse
 
 class MinecraftServerListParser(CloudflareParser):
-    MAX_PAGE = 30
     ALL_PRINTS = False
+
+    max_page: int
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
     def __init__(self) -> None:
         super().__init__("https://minecraft-server-list.com/page/%PAGE%/", CFSeleniumOptions((By.CLASS_NAME, "serverdatadiv1")))
         self.all_servers = {}
 
+    def ask_config(self):
+        page = input("Enter the max page to go for (nothing for 30): ")
+        if page.strip() == "":
+            self.max_page = 30
+        else:
+            self.max_page = int(page)
+
     def get_parse_everything(self):
         self.is_empty = False
-        for page in range(1, self.MAX_PAGE+1):
+        for page in range(1, self.max_page+1):
             print(f"\rGrabbing page {page}... (new servers: {len(self.all_servers)})", end="")
             data = self.get_page(page)
             self.parse_elements(data)

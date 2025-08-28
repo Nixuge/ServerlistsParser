@@ -7,6 +7,7 @@ def run_single_parser(parser_meta: ParserMeta):
     print(f"Running parser {parser_meta.name} (v{parser_meta.version}) for {parser_meta.website}")
     parser = parser_meta.parserClass()
 
+    parser.ask_config()
     parser.get_parse_everything()
     parser.print_ask_all()
     parser.end()
@@ -37,6 +38,7 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
         parser = meta.parserClass()
         parsers.append((meta, parser))
         print(f"Running parser {meta.name} (v{meta.version}) for {meta.website}")
+        parser.ask_config()
         parser.get_parse_everything()
         #not sure if that should be put here, as of now it only clears selenium 
         # (which only happens during the parsing) so it's ok,

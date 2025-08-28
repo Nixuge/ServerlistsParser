@@ -31,6 +31,9 @@ class FindMcServerParser(CloudflareParser):
         self.all_servers = []
         self.hidden_ips = set()
 
+    def ask_config(self):
+        pass
+        
     def get_parse_everything(self):
         self.isEmpty = False
         page = 0

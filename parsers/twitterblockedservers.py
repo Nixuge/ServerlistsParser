@@ -42,6 +42,9 @@ class BlockedServerParser(BaseParser):
         self.all_servers = []
         self.down_servers = []
 
+    def ask_config(self):
+        pass
+    
     def get_parse_everything(self):
         if not os.path.isdir(self.FOLDER_PATH):
             os.makedirs(self.FOLDER_PATH)

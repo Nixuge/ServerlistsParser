@@ -26,12 +26,20 @@ class Server:
 
 class CurseForgeParser(CloudflareParser):
     all_servers: list 
+    max_page: int
     def __init__(self) -> None:
         super().__init__(
             "https://www.curseforge.com/servers/minecraft?page=%PAGE%", 
             CFSeleniumOptions((By.XPATH, '/html/body/div[1]/div/main/div[2]/div/div[1]/div[1]/div/div'), always_use_selenium=True)
         )
         self.all_servers = []
+
+    def ask_config(self):
+        page = input("Enter the max page to go for (nothing for unlimited): ")
+        if page.strip() == "":
+            self.max_page = 9999999999
+        else:
+            self.max_page = int(page)
 
     def get_parse_everything(self):
         self.is_empty = False
@@ -79,13 +87,14 @@ class CurseForgeParser(CloudflareParser):
         print(f"name: {server.name}")
         print(f"ip: {server.ip}, {server.playercount}")
         
-        motd = "(unknown))"
+        motd = "(unknown)"
         version = "((unknown)"
         try:
             data = mcstatus.JavaServer(server.ip).status()
             motd = data.motd.to_ansi()
             version = data.version.name
-        except: pass
+        except Exception as e:
+            version = str(e)
 
         print(f"motd: {motd}")
         print(f"version: {version}")

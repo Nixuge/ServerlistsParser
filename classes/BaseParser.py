@@ -4,7 +4,11 @@ from abc import abstractmethod
 class BaseParser:
     def __init__(self) -> None:
         pass
-
+    
+    @abstractmethod
+    def ask_config(self):
+        raise Exception("Cannot call abstract method")
+    
     @abstractmethod
     def get_parse_everything(self):
         raise Exception("Cannot call abstract method")

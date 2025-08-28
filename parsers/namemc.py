@@ -16,9 +16,9 @@ class Server:
     motd: str
 
 class NameMCParser(CloudflareParser):
-    END_PAGE = 30
     PRINT_DOWN_SERVERS = True
 
+    end_page: int
     all_servers: dict[str, Server] # dict to avoid multiple same ips
     servers_down: set
     new_servers: int
@@ -31,8 +31,21 @@ class NameMCParser(CloudflareParser):
         self.servers_down = set()
         self.new_servers = 0
 
+    def ask_config(self):
+        page = input("Enter the max page to go for (nothing for 30): ")
+        if page.strip() == "":
+            self.end_page = 30
+        else:
+            page = int(page)
+            if page > 30:
+                print("Max page is 30, falling back to that.")
+                self.end_page = 30
+            else:
+                self.end_page = page
+            
+
     def get_parse_everything(self):
-        for i in range(1, self.END_PAGE+1):
+        for i in range(1, self.end_page+1):
             print(f"\rGrabbing page {i}... (new servers: {self.new_servers})", end="")
             data = self.get_page(i)
             self.parse_elements(data)
