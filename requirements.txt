@@ -1,0 +1,6 @@
+bs4
+cloudscraper
+mcstatus
+pyjson5
+pyparsing
+selenium
