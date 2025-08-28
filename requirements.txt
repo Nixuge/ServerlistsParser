@@ -4,3 +4,5 @@ mcstatus
 pyjson5
 pyparsing
 selenium
+pyperclip
+tldextract
