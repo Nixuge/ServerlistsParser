@@ -12,6 +12,8 @@ from utils.fileutils import add_server_dupe
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.serverchecks import ServerValidator
 
+import mcstatus
+
 # Note:
 # Unfortunately, due to some (probably on purpose) shitty webpage from curse,
 # we have to use Selenium if we want to have something halfway decent, since the thing
@@ -38,6 +40,7 @@ class CurseForgeParser(CloudflareParser):
             print(f"\rGrabbing page {page}...", end="")
             data = self.get_page(page)
             self.parse_elements(data)
+            print(f" {len(self.all_servers)} elements", end="")
             page += 1
         print()
 
@@ -75,7 +78,18 @@ class CurseForgeParser(CloudflareParser):
         print("====================")
         print(f"name: {server.name}")
         print(f"ip: {server.ip}, {server.playercount}")
+        
+        motd = "(unknown))"
+        version = "((unknown)"
+        try:
+            data = mcstatus.JavaServer(server.ip).status()
+            motd = data.motd.to_ansi()
+            version = data.version.name
+        except: pass
 
+        print(f"motd: {motd}")
+        print(f"version: {version}")
+        
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
