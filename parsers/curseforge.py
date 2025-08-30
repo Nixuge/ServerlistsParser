@@ -44,7 +44,7 @@ class CurseForgeParser(CloudflareParser):
     def get_parse_everything(self):
         self.is_empty = False
         page = 1
-        while not self.is_empty:
+        while not self.is_empty and page <= self.max_page:
             print(f"\rGrabbing page {page}...", end="")
             data = self.get_page(page)
             self.parse_elements(data)
