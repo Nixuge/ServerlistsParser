@@ -58,7 +58,8 @@ class ServerValidator:
                 if self.print_reason: print(f"motd invalid: {motd_valid_reason}")
                 return False
             return status
-        except:
+        except Exception as e:
+            if self.print_reason: print(f"exception happened pinging: {e}")
             FAILED_SERVERS.add_failed(self.ip)
             return False
 

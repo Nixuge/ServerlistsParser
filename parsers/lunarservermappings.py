@@ -71,7 +71,7 @@ class LunarServerMappingsParser(BaseParser):
         with open(f"{self.GIT_DIR}/servers/{data}/metadata.json") as f:
             json_data: dict = json.load(f)
 
-        print(data)
+        print("Server: " + data)
 
         # Including multiple urls is redundant and as per the doc, those are all the possible fields. Try to grab all of them in the given order, otherwise null.
         main_website = json_data.get("website",
@@ -118,7 +118,7 @@ class LunarServerMappingsParser(BaseParser):
         else:
             print(f"version: {server.primary_version} ({", ".join(server.versions)}))")
         
-        ask_duplicate(server.id, False)
+        ask_duplicate(server.primary_address, False)
     
     def print_ask_all(self):
         for server in self.all_servers:
