@@ -46,7 +46,7 @@ class LunarServerMappingsParser(BaseParser):
             self.inactive = json.load(f)
 
     def ask_config(self):
-        self.show_inactive = input("Show inactive servers? (y/N): ").lower() in ('n', '')
+        self.show_inactive = input("Show inactive servers? (y/N): ").lower() == 'y'
         try: 
             self.amount_to_process = int(input("How many servers folders do you want to process at most for this run?: "))
         except:
@@ -59,26 +59,37 @@ class LunarServerMappingsParser(BaseParser):
 
         for i in range(min(self.amount_to_process, len(files))):
             file = files[i]
-            if file in self.inactive:
+            if not self.show_inactive and file in self.inactive:
                 continue
 
-            self.parse_elements(file)
+            self.parse_elements(file, i, len(files))
 
         # self.driver.close()
         print(f"Done, got {len(self.all_servers)} new servers.")
     
-    def parse_elements(self, data: str):
-        with open(f"{self.GIT_DIR}/servers/{data}/metadata.json") as f:
-            json_data: dict = json.load(f)
+    def parse_elements(self, data: str, current: int, max: int):
+        try: # Required because of ONE server that has a trailing comma after the version list
+            with open(f"{self.GIT_DIR}/servers/{data}/metadata.json") as f: 
+                json_data: dict = json.load(f)
+        except:
+            print("Failed to decode json for server: " + data)
+            return
 
-        print("Server: " + data)
+        print(f"Server: {data} ({current+1}/{max})", end = " - ")
 
         # Including multiple urls is redundant and as per the doc, those are all the possible fields. Try to grab all of them in the given order, otherwise null.
         main_website = json_data.get("website",
                         json_data.get("store", 
                         json_data.get("wiki", 
                         json_data.get("merch", None))))
-    
+
+        if not json_data.get("primaryAddress"):
+            print("No primary address set (inactive server?)")
+            return
+        if not json_data.get("minecraftVersions"):
+            print("No primary address set (inactive server?)")
+            return
+        
         server = LunarServer(
             id = json_data["id"],
             name = json_data["name"],
@@ -98,6 +109,7 @@ class LunarServerMappingsParser(BaseParser):
         if not server_check:
             return
         
+        print("Done")
         server.playercount = server_check.players.online
         server.max_players = server_check.players.max
         server.motd = server_check.motd.to_ansi()
