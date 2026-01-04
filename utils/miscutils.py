@@ -11,6 +11,17 @@ def only_keep_main_domain(ip: str):
         return split[0]
     if lenSplit == 1:
         return split[0]
+    
+    if lenSplit >= 3:
+        if split[-2] == "co" and split[-1] in ("uk", "il", "za", "nz"):
+            return split[-3]
+        if split[-2] == "com" and split[-1] in ("br", "tr", "ar", "au"):
+            return split[-3]
+        if split[-2] == "net" and split[-1] in ("br", "ar"):
+            return split[-3]
+        if split[-2] == "in" and split[-1] in ("ua"):
+            return split[-3]
+
     return split[-2]
 
 def ask_duplicate(ip: str, bedrock: bool):
