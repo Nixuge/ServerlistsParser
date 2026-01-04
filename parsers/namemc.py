@@ -6,15 +6,18 @@ from selenium.webdriver.common.by import By
 from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 
+from utils import serverchecks
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.serverchecks import ServerValidator
+from mcstatus.status_response import JavaStatusResponse
 
 @dataclass
 class Server:
     ip: str
     playercount: int
     motd: str
+    status: JavaStatusResponse
 
 class NameMCParser(CloudflareParser):
     PRINT_DOWN_SERVERS = True
@@ -62,19 +65,19 @@ class NameMCParser(CloudflareParser):
 
         cards = soup.find_all("a", {"class": "card-link"})
         for card in cards:
-            ip = card["href"].replace("/server/", "")
+            ip = card["href"].replace("/server/", "") # type: ignore
 
             if is_already_present(ip):
                 continue
 
-            playercount_elem = card.find("span", {"class": "float-end ms-3"})
+            playercount_elem = card.find("span", {"class": "float-end ms-3"}) # type: ignore
             if not playercount_elem:
                 self.servers_down.add(ip)
                 continue
             
-            playercount = playercount_elem.text.replace(" / ", "/")
+            playercount = playercount_elem.text.replace(" / ", "/") # pyright: ignore[reportAttributeAccessIssue]
 
-            motd_elem = card.find("div", {"class": "col mc-reset p-1"}).find_all("span")
+            motd_elem = card.find("div", {"class": "col mc-reset p-1"}).find_all("span") # type: ignore
             if len(motd_elem) < 3:
                 motd = "None"
             else:
@@ -84,16 +87,18 @@ class NameMCParser(CloudflareParser):
             if not serverCheck:
                 continue
             
-            self.all_servers[ip] = Server(ip, playercount, motd)
+            self.all_servers[ip] = Server(ip, playercount, motd, serverCheck)
             count += 1
         
         self.new_servers += count
     
     def print_ask(self, server: Server):
         print("====================")
-        print(f"ip: {server.ip}, {server.playercount}")
-        print("motd: " + server.motd)
+        print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})")
+        print("namemc motd: " + server.motd)
+        print("motd: " + server.status.motd.to_ansi())
 
+        print(f"version: {server.status.version.name}")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
