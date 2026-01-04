@@ -2,6 +2,7 @@ import os
 from loader.modulesloader import get_all_parsers
 from loader.presets import run_all_parsers, run_multiple_parsers, run_single_parser
 
+from utils.color import termcolor
 from utils.fileutils import cleanup, init_file
 
 FILES = ("duplicates.txt", "ips.txt", "duplicates_bedrock.txt", "ips_bedrock.txt")
@@ -30,7 +31,7 @@ lenP = len(all_parsers)
 
 print("=====Choose a parser to run:=====")
 for index, parser in enumerate(all_parsers):
-    print(f"{index+1}: {parser.name} v{parser.version} ({parser.website})")
+    print(f"{parser.color}{index+1}: {parser.name} v{parser.version} ({parser.website}){termcolor.RESET}")
 print(f"{lenP+1}: Run all parsers")
 print("=================================")
 

@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 
 from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
+from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.serverchecks import ServerValidator
 
@@ -19,7 +20,7 @@ class Server:
     ip_port: str = ""
 
 class FindMcServerParser(CloudflareParser):
-    PRINT_HIDDEN_IPS = True
+    PRINT_HIDDEN_IPS = False
 
     all_servers: list[Server]
     hidden_ips: set
@@ -117,4 +118,4 @@ class FindMcServerParser(CloudflareParser):
             print(f"Hidden IP addresses: {self.hidden_ips}")
 
 def setup() -> ParserMeta:
-    return ParserMeta("Official Mojang Serverlist", "findmcserver.com", "1.0", FindMcServerParser)
+    return ParserMeta("Official Mojang Serverlist", "findmcserver.com", "1.0", termcolor.rgb(82, 165, 53), FindMcServerParser)

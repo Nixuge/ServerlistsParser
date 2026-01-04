@@ -6,6 +6,7 @@ from classes.BaseParser import BaseParser
 
 from classes.ParserMeta import ParserMeta
 
+from utils.color import termcolor
 from utils.miscutils import ask_duplicate
 from utils.serverchecks import ServerValidator
 
@@ -57,4 +58,4 @@ class TextFileParser(BaseParser):
             self.print_ask(*server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("TextFile", "~none~", "1.0", TextFileParser)
+    return ParserMeta("TextFile", "~none~", "1.0", termcolor.rgb(50, 150, 150), TextFileParser)

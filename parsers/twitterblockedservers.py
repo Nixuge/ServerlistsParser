@@ -8,6 +8,7 @@ from classes.BaseParser import BaseParser
 
 from classes.ParserMeta import ParserMeta
 
+from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.motdutils import motd_remove_section_signs
 
@@ -160,7 +161,7 @@ class BlockedServerParser(BaseParser):
 
     def req_stats(self, ip: str):
         try:
-            return mcstatus.JavaServer(ip).status(version=764)
+            return mcstatus.JavaServer(ip).status(version=773)
         except:
             return
 
@@ -183,7 +184,7 @@ class BlockedServerParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("BlockedServers", "twitter.com/BlockedServers", "0.1", BlockedServerParser)
+    return ParserMeta("BlockedServers", "twitter.com/BlockedServers", "0.1", termcolor.rgb(30, 175, 239), BlockedServerParser)
 
 # Honestly not worth using rn.
 # maybe (MAYBE) when i've implemented mcstatus & a "down server list" in here directly

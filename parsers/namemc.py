@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from classes.ParserMeta import ParserMeta
 
+from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
 from utils.serverchecks import ServerValidator
 
@@ -100,4 +101,4 @@ class NameMCParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("NameMC", "namemc.net", "1.0", NameMCParser)
+    return ParserMeta("NameMC", "namemc.net", "1.0", termcolor.rgb(238, 240, 242), NameMCParser)

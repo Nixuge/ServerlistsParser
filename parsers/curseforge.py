@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from classes.CloudflareParser import CloudflareParser
 from classes.CloudflareParser import CFSeleniumOptions
 from classes.ParserMeta import ParserMeta
+from utils.color import termcolor
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
@@ -71,7 +72,7 @@ class CurseForgeParser(CloudflareParser):
 
             playercount = playercount.text.replace(" Playing", "").replace(",", " ") # type: ignore
             
-            serverCheck = ServerValidator(ip, True).is_valid_mcstatus()
+            serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
             if not serverCheck:
                 continue
             
@@ -106,4 +107,4 @@ class CurseForgeParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("CurseForge", "curseforge.com/servers", "1.0", CurseForgeParser)
+    return ParserMeta("CurseForge", "curseforge.com/servers", "1.0", termcolor.rgb(241, 100, 54), CurseForgeParser)

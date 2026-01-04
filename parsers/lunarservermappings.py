@@ -5,6 +5,7 @@ from typing import Optional
 
 from classes.BaseParser import BaseParser
 from classes.ParserMeta import ParserMeta
+from utils.color import termcolor
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
@@ -40,6 +41,7 @@ class LunarServerMappingsParser(BaseParser):
         if not os.path.exists(self.CACHE_DIR):
             os.makedirs(self.CACHE_DIR)
         os.system(f"cd {self.CACHE_DIR} && git clone https://github.com/LunarClient/ServerMappings")
+        os.system(f"cd {self.CACHE_DIR} && cd ServerMappings && git pull")
 
         self.all_servers = []
         with open(f"{self.GIT_DIR}/inactive.json") as f:
@@ -137,4 +139,4 @@ class LunarServerMappingsParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("Lunar Server Mappings", "github.com/LunarClient/ServerMappings", "1.0", LunarServerMappingsParser)
+    return ParserMeta("Lunar Server Mappings", "github.com/LunarClient/ServerMappings", "1.0", termcolor.rgb(255, 255, 255), LunarServerMappingsParser)

@@ -8,4 +8,5 @@ class ParserMeta:
     name: str
     website: str
     version: str
+    color: str
     parserClass: Type[BaseParser]

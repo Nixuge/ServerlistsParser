@@ -8,6 +8,7 @@ from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
 from selenium.webdriver.common.by import By
 
 from classes.ParserMeta import ParserMeta
+from utils.color import termcolor
 from utils.miscutils import ask_duplicate
 from utils.motdutils import motd_remove_section_signs
 from utils.serverchecks import ServerValidator
@@ -103,4 +104,4 @@ class MinecraftServerListParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("MinecraftServerList", "minecraft-server-list.com", "1.0", MinecraftServerListParser)
+    return ParserMeta("MinecraftServerList", "minecraft-server-list.com", "1.0", termcolor.rgb(244, 155, 47), MinecraftServerListParser)
