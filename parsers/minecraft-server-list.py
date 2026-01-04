@@ -93,10 +93,11 @@ class MinecraftServerListParser(CloudflareParser):
         print("====================")
         print(f"name: {server.title}")
         print(f"ip: {server.ip} ({server.country.upper()})")
-        print(f"players: {status.players.online}/{status.players.max} (excepted {server.playersOn}/{server.playersMax})")
+        print(f"players: {status.players.online}/{status.players.max} ({server.playersOn}/{server.playersMax})")
         print(f"Votes: {server.votesMonth} this month, {server.votesAll} overrall")
-        print(f"MOTD: {motd_remove_section_signs(status.description)}")
+        print(f"MOTD: {status.motd.to_ansi()}")
 
+        print(f"version: {status.version.name}")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
