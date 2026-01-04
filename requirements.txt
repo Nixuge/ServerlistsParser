@@ -6,3 +6,4 @@ pyparsing
 selenium
 pyperclip
 tldextract
+httpx
