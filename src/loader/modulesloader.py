@@ -5,9 +5,13 @@ from classes.ParserMeta import ParserMeta
 
 def get_all_parsers():
     all_parsers: list[ParserMeta] = []
-    for file in os.listdir("parsers/"):
+    path = "parsers"
+    if not os.path.isdir(path):
+        path = "src/parsers"
+    
+    for file in os.listdir(path):
         if file == "__pycache__": continue
-        if not os.path.isfile(f"parsers/{file}"):
+        if not os.path.isfile(f"{path}/{file}"):
             print(f"{file} is not a file.")
             continue
         try:
