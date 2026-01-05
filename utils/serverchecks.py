@@ -99,8 +99,11 @@ class ServerValidator:
 
         bad_ends = [
             "minehut.gg",
+            # Start DDNS
             ".ddns.net",
-            "serveminecraft.net", # ddns
+            "serveminecraft.net",
+            "hopto.org",
+            # End DDNS
             "aternos.me",
             "aternos.host",
             "exaroton.me",
@@ -149,7 +152,8 @@ class ServerValidator:
             "atbphosting.com",
             "lagfree.me", # TensionHost.com
             "my-smp.net", # foliumhosting,
-            "mine.fun", #minestrator
+            "mine.fun", # minestrator
+            "akliz.net", # game host
         ]
 
         for end in bad_ends:
@@ -215,6 +219,9 @@ class MotdValidator:
         
         if "powered by powerupstack.com for free" in motd:
             return False, "powerupstack.com"
+        
+        if "This domain does not exists." in motd:
+            return False, "This domain does not exists."
         
 
         if default_motd_invalid and motd == "A Minecraft Server":

@@ -31,6 +31,8 @@ class TextFileParser(BaseParser):
         with open(self.SOURCE_PATH) as file:
             content = file.readlines()
 
+        content = list(set(content))
+
         for i, element in enumerate(content):
             self.parse_elements(element.split(" ")[0].strip(), i+1, len(content))
         print(f"Done, got {len(self.all_servers)} new servers.")
