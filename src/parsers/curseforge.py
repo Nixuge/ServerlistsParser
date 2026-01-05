@@ -107,4 +107,12 @@ class CurseForgeParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("CurseForge", "curseforge.com/servers", "1.0", termcolor.rgb(241, 100, 54), CurseForgeParser)
+    return ParserMeta(
+        "CurseForge",
+        "curseforge.com/servers",
+        "1.0",
+        termcolor.rgb(241,
+        100,
+        54),
+        CurseForgeParser
+    )

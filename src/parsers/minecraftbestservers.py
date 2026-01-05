@@ -133,4 +133,10 @@ class MinecraftBestServersParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("minecraftbestservers", "minecraftbestservers.com", "0.1", termcolor.rgb(227, 152, 82), MinecraftBestServersParser)
+    return ParserMeta(
+        "minecraftbestservers",
+        "minecraftbestservers.com",
+        "0.1",
+        termcolor.rgb(227, 152, 82),
+        MinecraftBestServersParser
+    )

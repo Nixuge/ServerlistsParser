@@ -106,4 +106,10 @@ class NameMCParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("NameMC", "namemc.net", "1.0", termcolor.rgb(238, 240, 242), NameMCParser)
+    return ParserMeta(
+        "NameMC",
+        "namemc.net",
+        "1.0",
+        termcolor.rgb(238, 240, 242),
+        NameMCParser
+    )

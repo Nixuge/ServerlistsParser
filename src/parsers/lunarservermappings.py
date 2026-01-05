@@ -139,4 +139,11 @@ class LunarServerMappingsParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("Lunar Server Mappings", "github.com/LunarClient/ServerMappings", "1.0", termcolor.rgb(255, 255, 255), LunarServerMappingsParser)
+    return ParserMeta(
+        "Lunar Server Mappings",
+        "github.com/LunarClient/ServerMappings",
+        "1.0",
+        termcolor.rgb(255, 255, 255),
+        LunarServerMappingsParser,
+        run_bulk=False
+    )

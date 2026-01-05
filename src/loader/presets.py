@@ -12,8 +12,17 @@ def run_single_parser(parser_meta: ParserMeta):
     parser.print_ask_all()
     parser.end()
 
-def run_all_parsers(parser_metas: list[ParserMeta]):
+def run_all_parsers_forced(parser_metas: list[ParserMeta]):
     run_multiple_parsers(parser_metas, range(0, len(parser_metas)))
+
+def run_all_bulk_parsers(parser_metas: list[ParserMeta]):
+    to_run = []
+    for i, parser in enumerate(parser_metas):
+        if parser.run_bulk:
+            to_run.append(i)
+    
+    run_multiple_parsers(parser_metas, to_run)
+
 
 def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int]):
     metas: list[ParserMeta] = []

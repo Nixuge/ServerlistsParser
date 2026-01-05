@@ -80,4 +80,11 @@ class BteParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("BuildTheEarth", "buildtheearth.net", "1.0", termcolor.rgb(40, 51, 140), BteParser)
+    return ParserMeta(
+        "BuildTheEarth", 
+        "buildtheearth.net", 
+        "1.0", 
+        termcolor.rgb(40, 51, 140), 
+        BteParser, 
+        run_bulk=False
+    )

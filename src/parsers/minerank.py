@@ -106,5 +106,11 @@ class MineRankParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("minerank", "minerank.com", "0.1", termcolor.rgb(124, 206, 0), MineRankParser)
+    return ParserMeta(
+        "minerank",
+        "minerank.com",
+        "0.1",
+        termcolor.rgb(124, 206, 0),
+        MineRankParser
+    )
 # TODO: Add Bedrock support

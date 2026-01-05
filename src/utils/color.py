@@ -21,8 +21,10 @@ class termcolor:
     BRIGHT_CYAN    = '\33[96m'
     BRIGHT_WHITE   = '\33[97m'
 
-    # Reset/End
+    # Special
     RESET          = '\33[0m'
+    BOLD           = '\033[1m'
+    UNDERLINE      = '\033[4m'
 
     @classmethod
     def rgb(cls, r: int, g: int, b: int) -> str:

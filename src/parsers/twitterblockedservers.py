@@ -184,7 +184,14 @@ class BlockedServerParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("BlockedServers", "twitter.com/BlockedServers", "0.1", termcolor.rgb(30, 175, 239), BlockedServerParser)
+    return ParserMeta(
+        "BlockedServers",
+        "twitter.com/BlockedServers",
+        "0.1",
+        termcolor.rgb(30, 175, 239),
+        BlockedServerParser,
+        run_bulk=False
+    )
 
 # Honestly not worth using rn.
 # maybe (MAYBE) when i've implemented mcstatus & a "down server list" in here directly

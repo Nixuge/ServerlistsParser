@@ -109,4 +109,10 @@ class MinecraftServersOrgParser(CloudflareParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("minecraftservers.org", "minecraftservers.org", "1.0", termcolor.rgb(73, 73, 73), MinecraftServersOrgParser)
+    return ParserMeta(
+        "minecraftservers.org",
+        "minecraftservers.org",
+        "1.0",
+        termcolor.rgb(73, 73, 73),
+        MinecraftServersOrgParser
+    )

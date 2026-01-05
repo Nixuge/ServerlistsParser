@@ -2,3 +2,4 @@ a_out/
 *.pyc
 data/
 cache/
+output.txt

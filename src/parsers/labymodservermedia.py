@@ -140,4 +140,11 @@ class LabymodServerMediaParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("LabyMod Server Media", "github.com/LabyMod/server-media", "1.0", termcolor.rgb(48, 132, 209), LabymodServerMediaParser)
+    return ParserMeta(
+        "LabyMod Server Media",
+        "github.com/LabyMod/server-media",
+        "1.0",
+        termcolor.rgb(48, 132, 209),
+        LabymodServerMediaParser,
+        run_bulk=False
+    )

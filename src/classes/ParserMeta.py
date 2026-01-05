@@ -10,3 +10,4 @@ class ParserMeta:
     version: str
     color: str
     parserClass: Type[BaseParser]
+    run_bulk: bool = True

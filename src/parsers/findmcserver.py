@@ -118,4 +118,10 @@ class FindMcServerParser(CloudflareParser):
             print(f"Hidden IP addresses: {self.hidden_ips}")
 
 def setup() -> ParserMeta:
-    return ParserMeta("Official Mojang Serverlist", "findmcserver.com", "1.0", termcolor.rgb(82, 165, 53), FindMcServerParser)
+    return ParserMeta(
+        "Official Mojang Serverlist",		
+        "findmcserver.com",		
+        "1.0",		
+        termcolor.rgb(82, 165, 53), 
+        FindMcServerParser
+    )

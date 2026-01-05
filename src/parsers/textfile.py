@@ -60,4 +60,11 @@ class TextFileParser(BaseParser):
             self.print_ask(*server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("TextFile", "~none~", "1.0", termcolor.rgb(50, 150, 150), TextFileParser)
+    return ParserMeta(
+        "TextFile",
+        "~none~",
+        "1.0",
+        termcolor.rgb(50, 150, 150),
+        TextFileParser,
+        run_bulk=False
+    )

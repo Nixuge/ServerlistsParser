@@ -116,4 +116,11 @@ class LabymodTextFileParser(BaseParser):
             self.print_ask(server)
 
 def setup() -> ParserMeta:
-    return ParserMeta("Labymod Text", "laby.net/server", "1.0", termcolor.rgb(48, 132, 209), LabymodTextFileParser)
+    return ParserMeta(
+        "Labymod Text",
+        "laby.net/server",
+        "1.0",
+        termcolor.rgb(48, 132, 209),
+        LabymodTextFileParser,
+        run_bulk=False
+    )
