@@ -81,3 +81,9 @@ def is_already_present(ip: str, bedrock: bool = False):
             return True
 
     return False
+
+def remove_double_space(data: str):
+    out = data
+    while "  " in out:
+        out = out.replace("  ", " ")
+    return out
