@@ -203,6 +203,8 @@ class MotdValidator:
             return False, "NeoProtect invalid hostname"
         if "NeoProtect > Server is deactivated!" in motd:
             return False, "NeoProtect server deactivated"
+        if "NeoProtect > Server is currently offline!" in motd:
+            return False, "Neoprotect server currently offline"
         if "Hosted by Servcity" in motd:
             return False, "Servcity"
         if "--[ Invalid Server ]--" in motd and "Protection by ⚡ Infinity-Filter.com ⚡" in motd:

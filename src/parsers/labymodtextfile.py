@@ -80,18 +80,18 @@ class LabymodTextFileParser(BaseParser):
 
         data = soup.find_all("div", {"class": "ln-card"})
         for elem in data:
-            if len(elem.attrs["class"]) > 1: 
+            if len(elem.attrs["class"]) > 1:  # pyright: ignore[reportAttributeAccessIssue]
                 continue
-            key = elem.find("div", {"class": "ln-card-header"}).attrs["data-trans"]
-            content = elem.find("div", {"class": "ln-card-body"})
+            key = elem.find("div", {"class": "ln-card-header"}).attrs["data-trans"] # type: ignore
+            content = elem.find("div", {"class": "ln-card-body"}) # type: ignore
             if key == "server.information":
-                desc = remove_double_space(motd_remove_section_signs(content.text.replace("\n", "")).strip())
+                desc = remove_double_space(motd_remove_section_signs(content.text.replace("\n", "")).strip()) # type: ignore
             elif key == "server.version":
-                version = remove_double_space(motd_remove_section_signs(content.text.strip()))
+                version = remove_double_space(motd_remove_section_signs(content.text.strip())) # type: ignore
             elif key == "server.game_modes":
-                gamemodes = remove_double_space(content.text.replace("\n", "").strip())
+                gamemodes = remove_double_space(content.text.replace("\n", "").strip()) # type: ignore
             elif key == "server.location":
-                location = remove_double_space(content.text.replace("\n", "").strip())
+                location = remove_double_space(content.text.replace("\n", "").strip()) # type: ignore
 
         server_check = ServerValidator(server).is_valid_mcstatus()
         if server_check:
