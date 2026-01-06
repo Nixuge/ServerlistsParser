@@ -21,3 +21,4 @@ SELENIUM_FIREFOX_OPTIONS.set_preference("devtools.jsonview.enabled", False)
 SELENIUM_FIREFOX_OPTIONS.add_argument("--headless")
 
 CHECK_FAILED_SERVER_CACHE = False
+USE_IGNORED_LIST = True

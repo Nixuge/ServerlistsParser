@@ -106,7 +106,7 @@ class MinecraftServerListParser(CloudflareParser):
 
 def setup() -> ParserMeta:
     return ParserMeta(
-        "MinecraftServerList",
+        "Minecraft-Server-List",
         "minecraft-server-list.com",
         "1.0",
         termcolor.rgb(244, 155, 47),

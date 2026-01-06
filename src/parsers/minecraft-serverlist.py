@@ -94,9 +94,9 @@ class MinecraftServerListComParser(CloudflareParser):
             )
 
         
-    def print_ask(self, server: McSrvListComJavaEntry):
+    def print_ask(self, server: McSrvListComJavaEntry, i: int):
         status = server.status
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"{server.num}: {server.name}")
         print(f"ip: {server.ip}")
         print(f"players: {status.players.online}/{status.players.max} ({server.players_on})")
@@ -106,12 +106,12 @@ class MinecraftServerListComParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers.values():
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers.values()):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(
-        "MinecraftServerList",
+        "Minecraft-ServerList",
         "minecraft-serverlist.com",
         "1.0",
         termcolor.rgb(118, 184, 61),

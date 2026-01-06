@@ -1,6 +1,6 @@
 import pyperclip
 import tldextract
-from utils.fileutils import add_server, add_server_dupe
+from utils.fileutils import add_line, add_server, add_server_dupe
 
 from utils.vars import BEDROCK_LIST, JAVA_LIST
 
@@ -26,10 +26,20 @@ def only_keep_main_domain(ip: str):
 
 def ask_duplicate(ip: str, bedrock: bool):
     pyperclip.copy(only_keep_main_domain(ip))
-    duplicated_answer = input("is the server a duplicate? ")
+    duplicated_answer = input("is the server a duplicate? ").lower()
+
     if duplicated_answer in ["r", "s"]: #remove/skip
         print("skipped.")
         return
+    
+    if duplicated_answer in ["i"]:
+        if bedrock:
+            add_line(f"cache/ignored_bedrock.txt", ip)
+        else:
+            add_line(f"cache/ignored.txt", ip)
+        print("added to the ignored list.")
+        return
+    
     duplicated = duplicated_answer in ["yes", "y", "oui", "o"]
     if duplicated:
         if bedrock:

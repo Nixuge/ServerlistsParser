@@ -8,7 +8,7 @@ from utils.miscutils import is_already_present
 from utils.motdutils import motd_remove_section_signs
 from mcstatus.status_response import JavaStatusResponse
 
-from utils.vars import CHECK_FAILED_SERVER_CACHE
+from utils.vars import CHECK_FAILED_SERVER_CACHE, USE_IGNORED_LIST
 
 
 
@@ -36,6 +36,24 @@ class FailedServers:
         self.failed.append(ip)
         with open("cache/statusfailed.txt", "a") as file:
             file.write(f"{ip}\n")
+
+class IgnoredServers:
+    ignored_java: list[str]
+    ignored_bedrock: list[str]
+    def __init__(self) -> None:
+        self.ignored_java = []
+        self.ignored_bedrock = []
+        if os.path.isfile("cache/ignored.txt"):
+            with open("cache/ignored.txt", "r") as f:
+                self.ignored_java = f.read().strip().split("\n")
+        if os.path.isfile("cache/ignored_bedrock.txt"):
+            with open("cache/ignored_bedrock.txt", "r") as f:
+                self.ignored_bedrock = f.read().strip().split("\n")
+
+    def is_ignored(self, ip: str, bedrock: bool):
+        if bedrock:
+            return ip in self.ignored_bedrock
+        return ip in self.ignored_java
 
 
 class ServerValidator:
@@ -73,6 +91,7 @@ class ServerValidator:
 
     def is_valid(self) -> bool:
         if not self._is_server_valid_string(): return False
+        if USE_IGNORED_LIST and IGNORED_SERVERS.is_ignored(self.ip, False): return False
         if MOTD_VALIDATOR.is_ip_in_motd_cache(self.ip): return False
         return True
 
@@ -103,6 +122,8 @@ class ServerValidator:
             ".ddns.net",
             "serveminecraft.net",
             "hopto.org",
+            "run.place",
+            "mine.bz",
             # End DDNS
             "aternos.me",
             "aternos.host",
@@ -128,6 +149,7 @@ class ServerValidator:
             "playit.pub",
             "playit.quest",
             # End playit part
+            "playit.gg", # different playit
             "pyro.social",
             "pebble.host",
             "minecraft.vodka", # lilypad
@@ -148,12 +170,17 @@ class ServerValidator:
             "ethera.net", # ethera game host
             "bed.ovh", # bedhosting.com.br
             "modded.fun", # bisecthosting
+            "factions.ws", # bisecthosting
             "gomc.fun", # russian game hosting
             "atbphosting.com",
             "lagfree.me", # TensionHost.com
             "my-smp.net", # foliumhosting,
+            "folium.lol", # foliumhosting
             "mine.fun", # minestrator
             "akliz.net", # game host
+            "graj.today", # hosting-minecraft.eu
+            "minekube.net", # some AI shit
+            "mcsh.io", # mcserverhost free servers
         ]
 
         for end in bad_ends:
@@ -166,6 +193,7 @@ class ServerValidator:
             return False
         
         return True
+    
 
 class MotdValidator:
     invalid_ips_motd: list[str]
@@ -225,13 +253,22 @@ class MotdValidator:
         if "This domain does not exists." in motd:
             return False, "This domain does not exists."
         
+        if "Server Expired | Please renew it!" in motd:
+            return False, "freemcserver.net expired"
+        
+        if "Get this server more RAM for free! > craft.link/ram" in motd:
+            return False, "craft.link/ram"
 
         if default_motd_invalid and motd == "A Minecraft Server":
             return False, "A Minecraft Server"
         if default_motd_invalid and motd == "A Velocity Server":
             return False, "A Velocity Server"
         
+        if default_motd_invalid and motd == "Just another BungeeCord - Forced Host":
+            return False, "Just another BungeeCord - Forced Host"
+        
         return True, None
 
 MOTD_VALIDATOR = MotdValidator()
 FAILED_SERVERS = FailedServers()
+IGNORED_SERVERS = IgnoredServers()

@@ -20,3 +20,7 @@ def add_server_dupe(filename: str, ip: str, reason: str):
 def add_server(filename: str, ip: str):
     with open(f"{OUTPUT_PATH}/{filename}", "a") as file:
         file.write(f"        \"{ip}\",\n")
+
+def add_line(filename: str, line: str):
+    with open(filename, "a") as file:
+        file.write(f"{line}\n")
