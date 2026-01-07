@@ -124,6 +124,7 @@ class ServerValidator:
             "hopto.org",
             "run.place",
             "mine.bz",
+            "cosmicdns.com",
             # End DDNS
             "aternos.me",
             "aternos.host",
@@ -160,6 +161,7 @@ class ServerValidator:
             "craft.gg", #omgserv
             "serv.nu", #server.pro
             "serv.gs", #server.pro
+            "mcpro.io", #server.pro
             "ferox.host", #feroxhosting.nl
             "srvplay.eu", #unknown
             "jogar.io", #unknown
@@ -181,6 +183,7 @@ class ServerValidator:
             "graj.today", # hosting-minecraft.eu
             "minekube.net", # some AI shit
             "mcsh.io", # mcserverhost free servers
+            "falixsrv.me", # falixnodes?
         ]
 
         for end in bad_ends:

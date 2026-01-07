@@ -165,11 +165,11 @@ class BlockedServerParser(BaseParser):
         except:
             return
 
-    def print_ask(self, server: BlockedServerEntry):
+    def print_ask(self, server: BlockedServerEntry, i: int):
         server_status = server.status
         motd = motd_remove_section_signs(server_status.description)
 
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"ip: {server.ip}")
         print(f"motd: {motd}")
         print(f"version name/protocol: {server_status.version.name}, {server_status.version.protocol}")
@@ -180,8 +180,8 @@ class BlockedServerParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

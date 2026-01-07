@@ -121,9 +121,9 @@ class LabymodServerMediaParser(BaseParser):
         
         self.all_servers.append(server)
 
-    def print_ask(self, server: LabyServer):
+    def print_ask(self, server: LabyServer, i: int):
         status = server.status
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         if server.color:
             print(server.color, end="")
         print(f"name: {server.name} {status.players.online}/{status.players.max} ({server.raw_name}){termcolor.RESET}")
@@ -136,8 +136,8 @@ class LabymodServerMediaParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

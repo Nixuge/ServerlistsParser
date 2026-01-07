@@ -45,8 +45,8 @@ class TextFileParser(BaseParser):
             self.all_servers.append((server, server_check))
 
 
-    def print_ask(self, ip: str, status: JavaStatusResponse):
-        print("====================")
+    def print_ask(self, ip: str, status: JavaStatusResponse, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"ip: {ip}")
         print(f"motd: {status.motd.to_ansi()}")
         print(f"version name/protocol: {status.version.name}, {status.version.protocol}")
@@ -56,8 +56,8 @@ class TextFileParser(BaseParser):
         ask_duplicate(ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(*server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(*server, i)
 
 def setup() -> ParserMeta:
     return ParserMeta(

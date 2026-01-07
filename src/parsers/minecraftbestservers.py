@@ -117,8 +117,8 @@ class MinecraftBestServersParser(CloudflareParser):
 
         pass
 
-    def print_ask(self, server: JavaServer):
-        print("====================")
+    def print_ask(self, server: JavaServer, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"{server.name}")
         print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount}) online")
         print(f"themes: {', '.join(server.themes)}")
@@ -129,8 +129,8 @@ class MinecraftBestServersParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

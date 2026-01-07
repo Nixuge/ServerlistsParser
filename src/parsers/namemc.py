@@ -92,8 +92,8 @@ class NameMCParser(CloudflareParser):
         
         self.new_servers += count
     
-    def print_ask(self, server: Server):
-        print("====================")
+    def print_ask(self, server: Server, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})")
         print("namemc motd: " + server.motd)
         print("motd: " + server.status.motd.to_ansi())
@@ -102,8 +102,8 @@ class NameMCParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers.values():
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers.values()):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

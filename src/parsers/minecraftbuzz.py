@@ -63,9 +63,9 @@ class MinecraftBuzzParser(CloudflareParser):
                 entry = McBeeBasicEntry(name, ip, serverCheck)
                 self.all_servers[ip] = entry
         
-    def print_ask(self, server: McBeeBasicEntry):
+    def print_ask(self, server: McBeeBasicEntry, i: int):
         status = server.status
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"name: {server.name}")
         print(f"ip: {server.ip}")
         print(f"players: {status.players.online}/{status.players.max}")
@@ -75,8 +75,8 @@ class MinecraftBuzzParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers.values():
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers.values()):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

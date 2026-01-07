@@ -58,7 +58,7 @@ class CurseForgeParser(CloudflareParser):
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
-        cards: list[Tag] = soup.find_all("div", {"class": "-mx-5 block bg-brand-100 p-5 xs:-mx-10 lg:mx-0 lg:flex lg:flex-wrap lg:items-center lg:justify-between"})
+        cards: list[Tag] = soup.find_all("div", {"class": "-mx-5 block bg-brand-100 p-5 xs:-mx-10 lg:mx-0 lg:flex lg:flex-wrap lg:items-center lg:justify-between"}) # type: ignore
         if len(cards) == 0:
             self.is_empty = True
         for card in cards:
@@ -83,8 +83,8 @@ class CurseForgeParser(CloudflareParser):
             
             self.all_servers.append(Server(ip, name, playercount))
 
-    def print_ask(self, server: Server):
-        print("====================")
+    def print_ask(self, server: Server, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"name: {server.name}")
         print(f"ip: {server.ip}, {server.playercount}")
         
@@ -103,8 +103,8 @@ class CurseForgeParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

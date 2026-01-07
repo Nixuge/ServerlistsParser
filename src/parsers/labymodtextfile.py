@@ -99,9 +99,9 @@ class LabymodTextFileParser(BaseParser):
         
 
 
-    def print_ask(self, server: LabyServer):
+    def print_ask(self, server: LabyServer, i: int):
         status = server.status
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"ip: {server.ip} ({server.location})")
         print(f"desc: {server.desc}, {server.gamemodes}")
         print(f"motd: {status.motd.to_ansi()}")
@@ -112,8 +112,8 @@ class LabymodTextFileParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

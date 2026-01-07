@@ -64,8 +64,8 @@ class BteParser(BaseParser):
 
         print()
 
-    def print_ask(self, server: JavaServer):
-        print("====================")
+    def print_ask(self, server: JavaServer, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"{server.color}{server.name}, {server.where}{termcolor.RESET}")
         print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} online")
         print(f"{server.desc[:50]}")
@@ -76,8 +76,8 @@ class BteParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

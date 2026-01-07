@@ -118,8 +118,8 @@ class LunarServerMappingsParser(BaseParser):
         
         self.all_servers.append(server)
 
-    def print_ask(self, server: LunarServer):
-        print("====================")
+    def print_ask(self, server: LunarServer, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         website = ' - ' + server.website if server.website else ''
         print(f"name: {server.name} {server.playercount}/{server.max_players} (id: {server.id}){website}")
         print(f"ip: {server.primary_address} ({", ".join(server.addresses)})")
@@ -135,8 +135,8 @@ class LunarServerMappingsParser(BaseParser):
         ask_duplicate(server.primary_address, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

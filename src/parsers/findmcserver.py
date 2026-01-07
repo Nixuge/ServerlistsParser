@@ -99,10 +99,10 @@ class FindMcServerParser(CloudflareParser):
             self.all_servers.append(server)
         
             
-    def print_ask(self, server: Server):
+    def print_ask(self, server: Server, i: int):
         v_str = "BEDROCK" if server.is_bedrock else "JAVA"
 
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"Name: {server.name} | {v_str}")
         print(f"ip: {server.ip_port}, {server.playercount}/{server.max_players}")
         print(f"desc: {server.desc}")
@@ -110,8 +110,8 @@ class FindMcServerParser(CloudflareParser):
         ask_duplicate(f"{server.ip_port}", server.is_bedrock)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
         
         # Can be removed here, since it's now grabbed in parse_elements
         if self.PRINT_HIDDEN_IPS:

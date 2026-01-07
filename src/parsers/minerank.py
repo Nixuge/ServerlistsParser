@@ -90,8 +90,8 @@ class MineRankParser(BaseParser):
 
         pass
 
-    def print_ask(self, server: JavaServer):
-        print("====================")
+    def print_ask(self, server: JavaServer, i: int):
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"{server.rank}: {server.name}, {server.country} ( {server.website} )")
         print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} online")
         print(f"{server.gamemode} server, {server.desc}")
@@ -102,8 +102,8 @@ class MineRankParser(BaseParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers:
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(

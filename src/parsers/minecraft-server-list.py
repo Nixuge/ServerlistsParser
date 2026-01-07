@@ -88,9 +88,9 @@ class MinecraftServerListParser(CloudflareParser):
             # print(len(self.all_servers))
 
         
-    def print_ask(self, server: McSrvListEntry):
+    def print_ask(self, server: McSrvListEntry, i: int):
         status = server.status
-        print("====================")
+        print(f"=========={i}/{len(self.all_servers)}==========")
         print(f"name: {server.title}")
         print(f"ip: {server.ip} ({server.country.upper()})")
         print(f"players: {status.players.online}/{status.players.max} ({server.playersOn}/{server.playersMax})")
@@ -101,8 +101,8 @@ class MinecraftServerListParser(CloudflareParser):
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
-        for server in self.all_servers.values():
-            self.print_ask(server)
+        for i, server in enumerate(self.all_servers.values()):
+            self.print_ask(server, i+1)
 
 def setup() -> ParserMeta:
     return ParserMeta(
