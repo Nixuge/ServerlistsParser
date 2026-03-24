@@ -3,7 +3,7 @@ import os
 from typing import Optional
 from bs4 import BeautifulSoup
 import httpx
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 from classes.BaseParser import BaseParser
 

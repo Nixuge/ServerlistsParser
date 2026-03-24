@@ -18,6 +18,7 @@ def get_all_parsers():
             module_name = f"parsers.{file[:-3]}"
             my_module = importlib.import_module(module_name)
             all_parsers.append(my_module.setup())
-        except:
+        except Exception as e:
             print(f"{file} is not a module.")
+            # print(e)
     return all_parsers

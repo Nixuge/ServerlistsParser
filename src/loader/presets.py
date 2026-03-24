@@ -1,4 +1,4 @@
-from pyparsing import Iterable
+from pyparsing.helpers import Iterable
 from classes.BaseParser import BaseParser
 from classes.ParserMeta import ParserMeta
 

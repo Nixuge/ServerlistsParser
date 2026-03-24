@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import os
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 from classes.BaseParser import BaseParser
 

@@ -9,7 +9,7 @@ from classes.ParserMeta import ParserMeta
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate
 from utils.serverchecks import ServerValidator
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 @dataclass
 class JavaServer:

@@ -6,7 +6,7 @@ import mcstatus
 
 from utils.miscutils import is_already_present
 from utils.motdutils import motd_remove_section_signs
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 from utils.vars import CHECK_FAILED_SERVER_CACHE, USE_IGNORED_LIST
 
@@ -125,6 +125,11 @@ class ServerValidator:
             "run.place",
             "mine.bz",
             "cosmicdns.com",
+            "sytes.net",
+            "ooguy.com",
+            "0am.jp",
+            "chickenkiller.com",
+            "jo3.org",
             # End DDNS
             "aternos.me",
             "aternos.host",
@@ -150,6 +155,42 @@ class ServerValidator:
             "playit.pub",
             "playit.quest",
             # End playit part
+            # Start min3.online part
+            "3min.online",
+            "coldmc.online",
+            "coldsmp.online",
+            "coldsmp.xyz",
+            "craftserv.cloud",
+            "cr4ft.cloud",
+            "cr4ft.online",
+            "diamon.cloud",
+            "diamon.online",
+            "dismine.xyz",
+            "infernalsmp.xyz",
+            "min3.cloud",
+            "min3.fr",
+            "min3.site",
+            "min3.space",
+            "min3craft.cloud",
+            "min3craft.online",
+            "min3craft.space",
+            "mineblocks.online",
+            "mineplay.xyz",
+            "minestom.online",
+            "multimc.cloud",
+            "multimc.online",
+            "pixelblock.cloud",
+            "pixelmine.cloud",
+            "pixelmine.site",
+            "pixelmine.space",
+            "pikz.online",
+            "pixly.online",
+            "playcraft.cloud",
+            "playsmp.xyz",
+            "pyts.cloud",
+            "redstone.cloud",
+            "toxhosting.xyz",
+            # End min3.online part
             "playit.gg", # different playit
             "pyro.social",
             "pebble.host",
@@ -162,11 +203,13 @@ class ServerValidator:
             "serv.nu", #server.pro
             "serv.gs", #server.pro
             "mcpro.io", #server.pro
+            "mcserv.me", #server.pro
             "ferox.host", #feroxhosting.nl
             "srvplay.eu", #unknown
             "jogar.io", #unknown
             "qzz.io", # domain.digitalplat.org, free domain
             "g-portal.game", # g-portal game host
+            "g-portal.rocks", # same
             "serv.cx", # mintservers.com
             "playwm.co", #winternode apparently?
             "ethera.net", # ethera game host
@@ -178,12 +221,55 @@ class ServerValidator:
             "lagfree.me", # TensionHost.com
             "my-smp.net", # foliumhosting,
             "folium.lol", # foliumhosting
+            "smp.quest", # foliumhosting
             "mine.fun", # minestrator
             "akliz.net", # game host
             "graj.today", # hosting-minecraft.eu
+            "mclan.ru", # hosting-minecraft.pro
+            "hostcraft.xyz",
             "minekube.net", # some AI shit
             "mcsh.io", # mcserverhost free servers
             "falixsrv.me", # falixnodes?
+            "falix.gg", # same i think
+            "sereinhost.com", # game host
+            "ateex.cloud", # game host
+            "vultam.host", # vultam.net
+            "mcserver.host", # kinetic hosting
+            "mcgg.nl", # freezehost
+            "nethr.nl", # freezehost
+            # Start SubHub / subdomain-manager.vercel.app
+            "mcnation.xyz",
+            "mineplay.pro",
+            "playcraft.me",
+            "pvppractice.xyz",
+            # End SubHub / subdomain-manager.vercel.app
+            "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
+            "lamicohost.com",
+            "skilloraclouds.site",
+            "holy.gg", # game hosting too
+            "lunarclient.world", # apparently lunar client has a proxy function???
+            "wither.host", # wither hosting, they do have their own smp on play.wither.host
+            "apsara.fun", # apsara.host
+            "play2go.cloud",
+            "lagless.games", # lagless.gg
+            "banglaverse.net",
+            "khanclouds.net",
+            "pufferfish.host",
+            "pixelhubhost.com",
+            "enx.host",
+            "hidengame.com", # hidencloud
+
+            # UNKNOWN, but included for now:
+            "ggwp.cc", # used by quite a bunch of servers, idk where its from
+            "join-mc.com", # same
+            "ultramc.co", # same
+            "funserver.top",
+            "mcjoin.fun",
+            "playmc.at",
+            "smpserver.net",
+            "connect-mc.com",
+            "playwithbao.com",
+            "feathermc.gg",
         ]
 
         for end in bad_ends:
@@ -241,6 +327,9 @@ class MotdValidator:
         if "--[ Invalid Server ]--" in motd and "Protection by ⚡ Infinity-Filter.com ⚡" in motd:
             return False, "Infinity-Filter"
         
+        if "Server.Pro Official [1.21." in motd:
+            return False, "Server.Pro Official [1.21."
+        
         if "This server is OFFLINE!" in motd:
             return False, "This server is OFFLINE!"
         
@@ -249,6 +338,12 @@ class MotdValidator:
         
         if "■ Server Is Paused" in motd:
             return False, "Server Is Paused"
+        
+        if "Minehut.com The Server Hosting Network" in motd:
+            return False, "Minehut"
+        
+        if "GameShield" in motd and "Backend is offline." in motd:
+            return False, "GameShield, Backend is offline."
         
         if "powered by powerupstack.com for free" in motd:
             return False, "powerupstack.com"

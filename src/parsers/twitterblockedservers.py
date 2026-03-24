@@ -3,7 +3,7 @@ import os
 import re
 import socket
 
-import mcstatus.status_response
+import mcstatus.responses
 from classes.BaseParser import BaseParser
 
 from classes.ParserMeta import ParserMeta
@@ -30,7 +30,7 @@ def dprint(*args):
 class BlockedServerEntry:
     hash: str
     ip: str
-    status: mcstatus.status_response.JavaStatusResponse
+    status: mcstatus.responses.JavaStatusResponse
 
 class BlockedServerParser(BaseParser):
     FOLDER_PATH = "data/twitter"

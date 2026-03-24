@@ -5,7 +5,7 @@ from utils.fileutils import add_line, add_server, add_server_dupe
 from utils.vars import BEDROCK_LIST, JAVA_LIST
 
 def only_keep_main_domain(ip: str):
-    split = ip.split(".")
+    split = ip.split(":")[0].split(".")
     lenSplit = len(split)
     if lenSplit == 2:
         return split[0]
@@ -24,8 +24,18 @@ def only_keep_main_domain(ip: str):
 
     return split[-2]
 
+def remove_leading_mc_play(ip: str):
+    ip = ip.removeprefix("play").removesuffix("play")
+    ip = ip.removeprefix("mc").removesuffix("mc")
+    return ip
+
+def remove_port_if(ip: str, query: str):
+    if "ip" in query:
+        ip = ip.split(":")[0]
+    return ip
+
 def ask_duplicate(ip: str, bedrock: bool):
-    pyperclip.copy(only_keep_main_domain(ip))
+    pyperclip.copy(remove_leading_mc_play(only_keep_main_domain(ip)))
     duplicated_answer = input("is the server a duplicate? ").lower()
 
     if duplicated_answer in ["r", "s"]: #remove/skip
@@ -40,7 +50,7 @@ def ask_duplicate(ip: str, bedrock: bool):
         print("added to the ignored list.")
         return
     
-    duplicated = duplicated_answer in ["yes", "y", "oui", "o"]
+    duplicated = duplicated_answer in ["yes", "y", "oui", "o", "yip", "oip"]
     if duplicated:
         if bedrock:
             name = "duplicates_bedrock.txt"
@@ -48,13 +58,13 @@ def ask_duplicate(ip: str, bedrock: bool):
             name = "duplicates.txt"
         
         reason = input("Enter the server info: ")
-        add_server_dupe(name, ip, reason)
+        add_server_dupe(name, remove_port_if(ip, duplicated_answer), reason)
     else:
         if bedrock:
             name = "ips_bedrock.txt"
         else:
             name = "ips.txt"
-        add_server(name, ip)
+        add_server(name, remove_port_if(ip, duplicated_answer))
 
 def remove_port(ip: str) -> str:
     if not ":" in ip:

@@ -13,7 +13,7 @@ from utils.miscutils import ask_duplicate
 from utils.motdutils import motd_remove_section_signs
 from utils.serverchecks import ServerValidator
 
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 @dataclass
 class McSrvListEntry:

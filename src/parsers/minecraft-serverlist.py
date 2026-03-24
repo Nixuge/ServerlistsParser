@@ -12,7 +12,7 @@ from utils.color import termcolor
 from utils.miscutils import ask_duplicate
 from utils.serverchecks import ServerValidator
 
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 @dataclass
 class McSrvListComJavaEntry:
@@ -115,5 +115,6 @@ def setup() -> ParserMeta:
         "minecraft-serverlist.com",
         "1.0",
         termcolor.rgb(118, 184, 61),
-        MinecraftServerListComParser
+        MinecraftServerListComParser,
+        # run_bulk= False
     )
