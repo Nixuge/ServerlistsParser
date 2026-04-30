@@ -1,18 +1,27 @@
 from abc import abstractmethod
 from dataclasses import dataclass
 import time
+from webbrowser import Chrome
 
 import cloudscraper
 
-from selenium.webdriver import Firefox
+from selenium import webdriver
+from selenium.webdriver import Firefox, Safari, Chrome
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from classes.BaseParser import BaseParser
 from utils.vars import SELENIUM_FIREFOX_OPTIONS
 
-def make_webdriver() -> Firefox:
-    driver = Firefox(options=SELENIUM_FIREFOX_OPTIONS)
+def make_webdriver() -> webdriver.Chrome:
+    option = webdriver.ChromeOptions()
+    # SOMEHOW(?) this hides the webdriver shit
+    # https://www.browserscan.net/bot-detection
+    option.add_argument('--disable-blink-features=AutomationControlled')
+    # option.add_argument('--headless=new')
+    option.add_argument
+
+    driver = webdriver.Chrome(options=option)
     driver.set_page_load_timeout(5)
     return driver
 
@@ -24,7 +33,7 @@ class CFSeleniumOptions:
 
 class CloudflareParser(BaseParser):
     scraper: cloudscraper.CloudScraper
-    selenium: Firefox | None
+    selenium: webdriver.Chrome | None
     selenium_opts: CFSeleniumOptions
     page_url: str
     def __init__(self, page_url: str, selenium_opts: CFSeleniumOptions) -> None:

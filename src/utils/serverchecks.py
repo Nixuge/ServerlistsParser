@@ -226,6 +226,7 @@ class ServerValidator:
             "akliz.net", # game host
             "graj.today", # hosting-minecraft.eu
             "mclan.ru", # hosting-minecraft.pro
+            "joinserver.ru", # hosting-minecraft.pro
             "hostcraft.xyz",
             "minekube.net", # some AI shit
             "mcsh.io", # mcserverhost free servers
