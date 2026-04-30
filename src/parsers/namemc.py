@@ -12,6 +12,8 @@ from utils.miscutils import ask_duplicate, is_already_present
 from utils.serverchecks import ServerValidator
 from mcstatus.responses import JavaStatusResponse
 
+from utils.termutils import print_with_icon
+
 @dataclass
 class Server:
     ip: str
@@ -92,13 +94,38 @@ class NameMCParser(CloudflareParser):
         
         self.new_servers += count
     
-    def print_ask(self, server: Server, i: int):
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})")
-        print("namemc motd: " + server.motd)
-        print("motd: " + server.status.motd.to_ansi())
+    # def print_ask(self, server: Server, i: int):
+    #     print(f"=========={i}/{len(self.all_servers)}==========")
+    #     print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})")
+    #     print("namemc motd: " + server.motd)
+    #     print("motd: " + server.status.motd.to_ansi())
 
-        print(f"version: {server.status.version.name}")
+    #     print(f"version: {server.status.version.name}")
+    #     ask_duplicate(server.ip, False)
+
+    def print_ask(self, server, i: int):
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        
+        motd_raw = server.status.motd.to_ansi().split('\n')
+        
+        lines = [
+            f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})",
+            "",
+            f"namemc motd: {server.motd}",
+            "",
+            f"motd: {motd_raw[0]}"
+        ]
+        
+        if len(motd_raw) > 1:
+            lines.extend(motd_raw[1:])
+
+        lines.append("")
+            
+        lines += (f"version: {server.status.version.name}",)
+
+        print_with_icon(server.status.icon, lines, img_width=15, padding=2)
+        
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):
