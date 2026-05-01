@@ -8,6 +8,8 @@ from classes.ParserMeta import ParserMeta
 from utils.color import termcolor
 
 from utils.miscutils import ask_duplicate
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 from mcstatus.responses import JavaStatusResponse
 
@@ -123,16 +125,21 @@ class LabymodServerMediaParser(BaseParser):
 
     def print_ask(self, server: LabyServer, i: int):
         status = server.status
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        if server.color:
-            print(server.color, end="")
-        print(f"name: {server.name} {status.players.online}/{status.players.max} ({server.raw_name}){termcolor.RESET}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+                
+        color_prefix = server.color if server.color else ""
 
-        print(f"ip: {server.ip}, location: {server.location} ({server.website})")
+        lines = [
+            f"{color_prefix}name: {server.name} {status.players.online}/{status.players.max} ({server.raw_name}){termcolor.RESET}",
+            f"ip: {server.ip}, location: {server.location} ({server.website})",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name}"
+        ]
 
-        print(f"motd: {status.motd.to_ansi()}")
-        print(f"version: {status.version.name}")
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
 
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):

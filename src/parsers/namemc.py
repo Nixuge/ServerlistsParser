@@ -9,6 +9,7 @@ from classes.ParserMeta import ParserMeta
 from utils import serverchecks
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.motdutils import get_formatted_motd
 from utils.serverchecks import ServerValidator
 from mcstatus.responses import JavaStatusResponse
 
@@ -103,25 +104,18 @@ class NameMCParser(CloudflareParser):
     #     print(f"version: {server.status.version.name}")
     #     ask_duplicate(server.ip, False)
 
-    def print_ask(self, server, i: int):
+    def print_ask(self, server: Server, i: int):
         print(f"============================== {i}/{len(self.all_servers)} ==============================")
-        
-        motd_raw = server.status.motd.to_ansi().split('\n')
         
         lines = [
             f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount})",
             "",
             f"namemc motd: {server.motd}",
             "",
-            f"motd: {motd_raw[0]}"
+            *get_formatted_motd(server.status),
+            "",
+            f"version: {server.status.version.name}"
         ]
-        
-        if len(motd_raw) > 1:
-            lines.extend(motd_raw[1:])
-
-        lines.append("")
-            
-        lines += (f"version: {server.status.version.name}",)
 
         print_with_icon(server.status.icon, lines, img_width=15, padding=2)
         

@@ -10,6 +10,8 @@ from selenium.webdriver.common.by import By
 from classes.ParserMeta import ParserMeta
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 
 from mcstatus.responses import JavaStatusResponse
@@ -96,13 +98,20 @@ class MinecraftServerListComParser(CloudflareParser):
         
     def print_ask(self, server: McSrvListComJavaEntry, i: int):
         status = server.status
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"{server.num}: {server.name}")
-        print(f"ip: {server.ip}")
-        print(f"players: {status.players.online}/{status.players.max} ({server.players_on})")
-        print(f"MOTD: {status.motd.to_ansi()}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        
+        lines = [
+            f"{server.num}: {server.name}",
+            f"ip: {server.ip}",
+            f"players: {status.players.online}/{status.players.max} ({server.players_on})",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name} ({status.version.protocol})"
+        ]
 
-        print(f"version: {status.version.name} ({status.version.protocol})")
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):

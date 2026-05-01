@@ -13,6 +13,8 @@ from classes.ParserMeta import ParserMeta
 
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 from mcstatus.responses import JavaStatusResponse
 
@@ -118,16 +120,22 @@ class MinecraftBestServersParser(CloudflareParser):
         pass
 
     def print_ask(self, server: JavaServer, i: int):
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"{server.name}")
-        print(f"ip: {server.ip}, {server.status.players.online}/{server.status.players.max} ({server.playercount}) online")
-        print(f"themes: {', '.join(server.themes)}")
-
-        print(f"motd: {server.status.motd.to_ansi()}")
-        print(f"version: {server.status.version.name}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        status = server.status
         
-        ask_duplicate(server.ip, False)
-    
+        lines = [
+            f"{server.name}",
+            f"ip: {server.ip}, {status.players.online}/{status.players.max} ({server.playercount}) online",
+            f"themes: {', '.join(server.themes)}",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name}"
+        ]
+
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
+        ask_duplicate(server.ip, False)    
     def print_ask_all(self):
         for i, server in enumerate(self.all_servers):
             self.print_ask(server, i+1)

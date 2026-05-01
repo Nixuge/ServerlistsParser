@@ -10,7 +10,8 @@ from classes.ParserMeta import ParserMeta
 
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate, is_already_present
-from utils.motdutils import motd_remove_section_signs
+from utils.termutils import print_with_icon
+from utils.motdutils import get_formatted_motd, motd_remove_section_signs
 
 # Good old REALLY DIRTY scraper, been a while since i wrote one like that w splits & regexes mixed.
 
@@ -166,17 +167,22 @@ class BlockedServerParser(BaseParser):
             return
 
     def print_ask(self, server: BlockedServerEntry, i: int):
-        server_status = server.status
-        motd = motd_remove_section_signs(server_status.description)
+        status = server.status
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
 
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"ip: {server.ip}")
-        print(f"motd: {motd}")
-        print(f"version name/protocol: {server_status.version.name}, {server_status.version.protocol}")
-        print(f"Player: {server_status.players.online}/{server_status.players.max}")
-        print(f"ping: {server_status.latency}")
-        print("hash: " + server.hash)
+        lines = [
+            f"ip: {server.ip}",
+            f"Player: {status.players.online}/{status.players.max}",
+            f"ping: {status.latency}",
+            "hash: " + server.hash,
+            *get_formatted_motd(status),
+            "",
+            f"version name/protocol: {status.version.name}, {status.version.protocol}"
+        ]
 
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):

@@ -10,7 +10,8 @@ from selenium.webdriver.common.by import By
 from classes.ParserMeta import ParserMeta
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate
-from utils.motdutils import motd_remove_section_signs
+from utils.termutils import print_with_icon
+from utils.motdutils import get_formatted_motd, motd_remove_section_signs
 from utils.serverchecks import ServerValidator
 
 from mcstatus.responses import JavaStatusResponse
@@ -90,14 +91,21 @@ class MinecraftServerListParser(CloudflareParser):
         
     def print_ask(self, server: McSrvListEntry, i: int):
         status = server.status
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"name: {server.title}")
-        print(f"ip: {server.ip} ({server.country.upper()})")
-        print(f"players: {status.players.online}/{status.players.max} ({server.playersOn}/{server.playersMax})")
-        print(f"Votes: {server.votesMonth} this month, {server.votesAll} overrall")
-        print(f"MOTD: {status.motd.to_ansi()}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        
+        lines = [
+            f"name: {server.title}",
+            f"ip: {server.ip} ({server.country.upper()})",
+            f"players: {status.players.online}/{status.players.max} ({server.playersOn}/{server.playersMax})",
+            f"Votes: {server.votesMonth} this month, {server.votesAll} overrall",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name}"
+        ]
 
-        print(f"version: {status.version.name}")
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):

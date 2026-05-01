@@ -11,7 +11,8 @@ from classes.ParserMeta import ParserMeta
 
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate, remove_double_space
-from utils.motdutils import motd_remove_section_signs
+from utils.termutils import print_with_icon
+from utils.motdutils import get_formatted_motd, motd_remove_section_signs
 from utils.serverchecks import ServerValidator
 
 SHOULD_ALWAYS_QUERY_LABYMOD = False
@@ -101,14 +102,21 @@ class LabymodTextFileParser(BaseParser):
 
     def print_ask(self, server: LabyServer, i: int):
         status = server.status
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"ip: {server.ip} ({server.location})")
-        print(f"desc: {server.desc}, {server.gamemodes}")
-        print(f"motd: {status.motd.to_ansi()}")
-        print(f"version: {status.version.name}, {status.version.protocol} ({server.version})")
-        print(f"Player: {status.players.online}/{status.players.max}")
-        print(f"ping: {status.latency}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        
+        lines = [
+            f"ip: {server.ip} ({server.location})",
+            f"desc: {server.desc}, {server.gamemodes}",
+            f"Player: {status.players.online}/{status.players.max}",
+            f"ping: {status.latency}",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name}, {status.version.protocol} ({server.version})"
+        ]
 
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
         ask_duplicate(server.ip, False)
     
     def print_ask_all(self):

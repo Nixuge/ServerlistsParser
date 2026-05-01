@@ -271,6 +271,7 @@ class ServerValidator:
             "connect-mc.com",
             "playwithbao.com",
             "feathermc.gg",
+            "mc-join.com"
         ]
 
         for end in bad_ends:

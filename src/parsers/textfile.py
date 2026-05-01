@@ -8,6 +8,8 @@ from classes.ParserMeta import ParserMeta
 
 from utils.color import termcolor
 from utils.miscutils import ask_duplicate
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 
 class TextFileParser(BaseParser):
@@ -46,13 +48,21 @@ class TextFileParser(BaseParser):
 
 
     def print_ask(self, ip: str, status: JavaStatusResponse, i: int):
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"ip: {ip}")
-        print(f"motd: {status.motd.to_ansi()}")
-        print(f"version name/protocol: {status.version.name}, {status.version.protocol}")
-        print(f"Player: {status.players.online}/{status.players.max}")
-        print(f"ping: {status.latency}")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
 
+        
+        lines = [
+            f"ip: {ip}",
+            f"Player: {status.players.online}/{status.players.max}",
+            f"ping: {status.latency}",
+            *get_formatted_motd(status),
+            "",
+            f"version name/protocol: {status.version.name}, {status.version.protocol}"
+        ]
+
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+
+        print("\n")
         ask_duplicate(ip, False)
     
     def print_ask_all(self):
