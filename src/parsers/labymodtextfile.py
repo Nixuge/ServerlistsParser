@@ -32,6 +32,7 @@ class LabymodTextFileParser(BaseParser):
 
     all_servers: list[LabyServer]
     def __init__(self) -> None:
+        super().__init__()
         self.all_servers = []
 
     def ask_config(self):
@@ -52,27 +53,46 @@ class LabymodTextFileParser(BaseParser):
 
         content = list(set(content))
 
-        for i, element in enumerate(content):
-            self.parse_elements(element.split(" ")[0].strip(), i+1, len(content))
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for element in content:
+            future = self.executor.submit(self.check_server, element.split(" ")[0].strip())
+            self.futures.append(future)
+            
+        for future in self.futures:
+            result = future.result()
+            if result:
+                self.all_servers.append(result)
+
+        self.executor.shutdown(wait=True)
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
-    def parse_elements(self, server: str, num: int, total: int):
-        print(f"Checking server: {server} ({num}/{total})")
-        if not SHOULD_ALWAYS_QUERY_LABYMOD and "." in server:
-            server_check = ServerValidator(server).is_valid_mcstatus()
+    def parse_elements(self, data: str):
+        pass # BaseParser requires this but we don't need it here
+
+    def check_server(self, server: str) -> Optional[LabyServer]:
+        server_check = ServerValidator(server).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
             if server_check:
-                self.all_servers.append(LabyServer(server, None, None, None, None, server_check))
-            return
+                self.valid_servers_found += 1
+            self.print_status()
+
+        if not SHOULD_ALWAYS_QUERY_LABYMOD and "." in server:
+            if server_check:
+                return LabyServer(server, None, None, None, None, server_check)
+            return None
         
         try:
             data = httpx.get(f"https://laby.net/server/{server}?lang=en", timeout=10.0).text
         except httpx.ReadTimeout as e:
-            print("Laby request timed out !")
-            return
+            return None
         
         soup = BeautifulSoup(data, 'html.parser')
         
-        ip = soup.find("p", {"class": "text-muted ip btn-copy mt-2"}).text.replace("IP", "").strip() # type: ignore
+        ip_elem = soup.find("p", {"class": "text-muted ip btn-copy mt-2"})
+        if not ip_elem:
+            return None
+        ip = ip_elem.text.replace("IP", "").strip() # type: ignore
         
         desc = None
         version = None
@@ -94,9 +114,9 @@ class LabymodTextFileParser(BaseParser):
             elif key == "server.location":
                 location = remove_double_space(content.text.replace("\n", "").strip()) # type: ignore
 
-        server_check = ServerValidator(server).is_valid_mcstatus()
         if server_check:
-            self.all_servers.append(LabyServer(server, desc, version, location, gamemodes, server_check))
+            return LabyServer(server, desc, version, location, gamemodes, server_check)
+        return None
         
 
 

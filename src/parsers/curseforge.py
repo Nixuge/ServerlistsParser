@@ -11,9 +11,11 @@ from utils.color import termcolor
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 
-import mcstatus
+from mcstatus.responses import JavaStatusResponse
 
 # Note:
 # Unfortunately, due to some (probably on purpose) shitty webpage from curse,
@@ -24,6 +26,7 @@ class Server:
     ip: str
     name: str
     playercount: str
+    status: JavaStatusResponse
 
 class CurseForgeParser(CloudflareParser):
     all_servers: list 
@@ -42,19 +45,41 @@ class CurseForgeParser(CloudflareParser):
         else:
             self.max_page = int(page)
 
+    def check_server(self, ip, name, playercount):
+        serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page if self.max_page != 9999999999 else None)
+        
+        if not serverCheck:
+            return None
+        
+        if playercount == "Offline":
+            add_server_dupe("duplicates.txt", ip, "down")
+            # print(f"Skipped {ip} (down)")
+        
+        return Server(ip, name, playercount, serverCheck)
+
     def get_parse_everything(self):
         self.is_empty = False
         page = 1
         while not self.is_empty and page <= self.max_page:
-            print(f"\rGrabbing page {page}...", end="")
+            self.pages_parsed = page
+            self.print_status(self.max_page if self.max_page != 9999999999 else None)
             data = self.get_page(page)
             self.parse_elements(data)
-            print(f" {len(self.all_servers)} elements", end="")
+            self.print_status(self.max_page if self.max_page != 9999999999 else None)
             page += 1
-        print()
+        
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
 
-        # self.driver.close()
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
@@ -72,33 +97,24 @@ class CurseForgeParser(CloudflareParser):
 
             playercount = playercount.text.replace(" Playing", "").replace(",", " ") # type: ignore
             
-            serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
-            if not serverCheck:
-                continue
-            
-            if playercount == "Offline":
-                add_server_dupe("duplicates.txt", ip, "down")
-                print(f"Skipped {ip} (down)")
-            
-            
-            self.all_servers.append(Server(ip, name, playercount))
+            future = self.executor.submit(self.check_server, ip, name, playercount)
+            self.futures.append(future)
 
     def print_ask(self, server: Server, i: int):
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        print(f"name: {server.name}")
-        print(f"ip: {server.ip}, {server.playercount}")
-        
-        motd = "(unknown)"
-        version = "((unknown)"
-        try:
-            data = mcstatus.JavaServer(server.ip).status()
-            motd = data.motd.to_ansi()
-            version = data.version.name
-        except Exception as e:
-            version = str(e)
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        status = server.status
 
-        print(f"motd: {motd}")
-        print(f"version: {version}")
+        lines = [
+            f"name: {server.name}",
+            f"ip: {server.ip} ({server.playercount})",
+            f"players: {status.players.online}/{status.players.max}",
+            *get_formatted_motd(status),
+            "",
+            f"version: {status.version.name} ({status.version.protocol})"
+        ]
+
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+        print("\n")
         
         ask_duplicate(server.ip, False)
     

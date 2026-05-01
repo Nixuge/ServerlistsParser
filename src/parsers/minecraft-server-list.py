@@ -44,16 +44,41 @@ class MinecraftServerListParser(CloudflareParser):
         else:
             self.max_page = int(page)
 
+    def check_server(self, title, country, desc, ip, playersOn, playersMax, votesMonth, votesAll):
+        serverCheck = ServerValidator(ip, self.ALL_PRINTS).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page)
+
+        if not serverCheck:
+            return None
+
+        return McSrvListEntry(
+            title, country, desc,
+            ip, playersOn, playersMax, 
+            votesMonth, votesAll,
+            serverCheck
+        )
+
     def get_parse_everything(self):
         self.is_empty = False
         for page in range(1, self.max_page+1):
-            print(f"\rGrabbing page {page}... (new servers: {len(self.all_servers)})", end="")
+            self.pages_parsed = page
+            self.print_status(self.max_page)
             data = self.get_page(page)
             self.parse_elements(data)
-            page += 1
+            self.print_status(self.max_page)
+            
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers[server_entry.ip] = server_entry
+        self.executor.shutdown(wait=True)
         print()
 
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
 
     # type: ignore
     def parse_elements(self, data: str):
@@ -76,17 +101,8 @@ class MinecraftServerListParser(CloudflareParser):
             votesMonth = int(votesMonth.strip().split(" ")[-1])
             votesAll = int(votesAll.strip().split(" ")[-1])
 
-            serverCheck = ServerValidator(ip, self.ALL_PRINTS).is_valid_mcstatus()
-            if not serverCheck:
-                continue
-
-            self.all_servers[ip] = McSrvListEntry(
-                title, country, desc,
-                ip, playersOn, playersMax, 
-                votesMonth, votesAll,
-                serverCheck
-            )
-            # print(len(self.all_servers))
+            future = self.executor.submit(self.check_server, title, country, desc, ip, playersOn, playersMax, votesMonth, votesAll)
+            self.futures.append(future)
 
         
     def print_ask(self, server: McSrvListEntry, i: int):

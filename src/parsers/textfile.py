@@ -17,11 +17,24 @@ class TextFileParser(BaseParser):
 
     all_servers: list[tuple[str, JavaStatusResponse]]
     def __init__(self) -> None:
+        super().__init__()
         self.all_servers = []
 
     def ask_config(self):
         pass
     
+    def check_server(self, server: str):
+        server_check = ServerValidator(server).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if server_check:
+                self.valid_servers_found += 1
+            self.print_status()
+            
+        if server_check:
+            return (server, server_check)
+        return None
+
     def get_parse_everything(self):
         if not os.path.isdir("data/"):
             os.makedirs("data/")
@@ -36,21 +49,28 @@ class TextFileParser(BaseParser):
         content = list(set(content))
 
         for i, element in enumerate(content):
+            self.pages_parsed = i + 1
+            self.print_status()
             self.parse_elements(element.split(" ")[0].strip(), i+1, len(content))
-        print(f"Done, got {len(self.all_servers)} new servers.")
+            self.print_status()
+            
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
+            
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self, server: str, num: int, total: int):
-        print(f"Checking server: {server} ({num}/{total})")
-        server_check = ServerValidator(server).is_valid_mcstatus()
-        if server_check:
-            print("Done !")
-            self.all_servers.append((server, server_check))
+        future = self.executor.submit(self.check_server, server)
+        self.futures.append(future)
 
 
     def print_ask(self, ip: str, status: JavaStatusResponse, i: int):
         print(f"============================== {i}/{len(self.all_servers)} ==============================")
 
-        
+
         lines = [
             f"ip: {ip}",
             f"Player: {status.players.online}/{status.players.max}",

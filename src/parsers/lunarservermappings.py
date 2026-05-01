@@ -3,12 +3,16 @@ import json
 import os
 from typing import Optional
 
+from mcstatus.responses import JavaStatusResponse
+
 from classes.BaseParser import BaseParser
 from classes.ParserMeta import ParserMeta
 from utils.color import termcolor
 from utils.fileutils import add_server_dupe
 
 from utils.miscutils import ask_duplicate, is_already_present
+from utils.motdutils import get_formatted_motd
+from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 
 @dataclass
@@ -22,9 +26,7 @@ class LunarServer:
     versions: list[str]
     primary_version: str
     crossplay: bool
-    playercount: Optional[int]
-    max_players: Optional[int]
-    motd: Optional[str]
+    status: JavaStatusResponse
 
 
 class LunarServerMappingsParser(BaseParser):
@@ -38,6 +40,7 @@ class LunarServerMappingsParser(BaseParser):
     inactive: list[str]
 
     def __init__(self) -> None:
+        super().__init__()
         if not os.path.exists(self.CACHE_DIR):
             os.makedirs(self.CACHE_DIR)
         os.system(f"cd {self.CACHE_DIR} && git clone https://github.com/LunarClient/ServerMappings")
@@ -55,29 +58,49 @@ class LunarServerMappingsParser(BaseParser):
             print("Bad input, defaulting to all servers.")
             self.amount_to_process = 99999999
 
+    def check_server(self, server: LunarServer):
+        server_check = ServerValidator(server.primary_address, False).is_valid_mcstatus()
+        # server_check = ServerValidator(server.primary_address, True).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
+            if server_check:
+                self.valid_servers_found += 1
+            self.print_status()
+        if not server_check:
+            return None
+        
+        server.status = server_check
+        
+        return server
+
     def get_parse_everything(self):
         files = os.listdir(f"{self.GIT_DIR}/servers")
         files.sort()
 
         for i in range(min(self.amount_to_process, len(files))):
+            self.pages_parsed = i + 1
             file = files[i]
             if not self.show_inactive and file in self.inactive:
                 continue
 
             self.parse_elements(file, i, len(files))
+            self.print_status()
 
-        # self.driver.close()
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
+
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self, data: str, current: int, max: int):
         try: # Required because of ONE server that has a trailing comma after the version list
             with open(f"{self.GIT_DIR}/servers/{data}/metadata.json") as f: 
                 json_data: dict = json.load(f)
         except:
-            print("Failed to decode json for server: " + data)
             return
-
-        print(f"Server: {data} ({current+1}/{max})", end = " - ")
 
         # Including multiple urls is redundant and as per the doc, those are all the possible fields. Try to grab all of them in the given order, otherwise null.
         main_website = json_data.get("website",
@@ -86,10 +109,8 @@ class LunarServerMappingsParser(BaseParser):
                         json_data.get("merch", None))))
 
         if not json_data.get("primaryAddress"):
-            print("No primary address set (inactive server?)")
             return
         if not json_data.get("minecraftVersions"):
-            print("No primary address set (inactive server?)")
             return
         
         server = LunarServer(
@@ -102,36 +123,38 @@ class LunarServerMappingsParser(BaseParser):
             versions = json_data["minecraftVersions"],
             primary_version = json_data["primaryMinecraftVersion"],
             crossplay = json_data.get("crossplay", False),
-            playercount = None,
-            max_players = None,
-            motd = None
+            status=None # type: ignore , bit dirty but meh
         )
         
-        server_check = ServerValidator(server.primary_address, True).is_valid_mcstatus()
-        if not server_check:
-            return
-        
-        print("Done")
-        server.playercount = server_check.players.online
-        server.max_players = server_check.players.max
-        server.motd = server_check.motd.to_ansi()
-        
-        self.all_servers.append(server)
+        future = self.executor.submit(self.check_server, server)
+        self.futures.append(future)
 
     def print_ask(self, server: LunarServer, i: int):
-        print(f"=========={i}/{len(self.all_servers)}==========")
-        website = ' - ' + server.website if server.website else ''
-        print(f"name: {server.name} {server.playercount}/{server.max_players} (id: {server.id}){website}")
-        print(f"ip: {server.primary_address} ({", ".join(server.addresses)})")
-        if server.description:
-            print(f"description: {server.description}")
-
-        print(f"motd: {server.motd}")
-        if len(server.versions) == 1 and server.versions[0] == server.primary_version:
-            print(f"version: {server.primary_version}")
-        else:
-            print(f"version: {server.primary_version} ({", ".join(server.versions)}))")
+        print(f"============================== {i}/{len(self.all_servers)} ==============================")
+        status = server.status
+        website = f" - {server.website}" if server.website else ""
         
+        lines = [
+            f"name: {server.name} (id: {server.id}){website}",
+            f"ip: {server.primary_address} ({', '.join(server.addresses)})",
+            f"players: {status.players.online}/{status.players.max}",
+        ]
+        
+        if server.description:
+            lines.append(f"description: {server.description}")
+            
+        lines.extend([
+            *get_formatted_motd(status),
+            "",
+        ])
+        
+        if len(server.versions) == 1 and server.versions[0] == server.primary_version:
+            lines.append(f"version: {server.primary_version}")
+        else:
+            lines.append(f"version: {server.primary_version} ({', '.join(server.versions)})")
+
+        print_with_icon(status.icon, lines, img_width=15, padding=2)
+        print("\n")
         ask_duplicate(server.primary_address, False)
     
     def print_ask_all(self):

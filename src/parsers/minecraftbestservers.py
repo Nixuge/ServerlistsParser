@@ -55,15 +55,33 @@ class MinecraftBestServersParser(CloudflareParser):
         self.is_empty = False
         page = 1
         while not self.is_empty and page <= self.max_page:
-            print(f"\rGrabbing page {page}...", end="")
             data = self.get_page(page)
+            self.pages_parsed += 1
+            self.print_status(self.max_page)
             self.parse_elements(data)
-            print(f" {len(self.all_servers)} elements", end="")
             page += 1
-        print()
 
+        for future in self.futures:
+            result = future.result()
+            if result:
+                self.all_servers.append(result)
+        
+        self.executor.shutdown(wait=True)
         # self.driver.close()
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
+
+    def check_server(self, java_ip: str, server_name_number: str, online: str, themes: list[str]):
+        serverCheck = ServerValidator(java_ip, False).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page)
+
+        if serverCheck:
+            return JavaServer(java_ip, server_name_number, online, themes, serverCheck)
+        return None
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
@@ -77,8 +95,8 @@ class MinecraftBestServersParser(CloudflareParser):
 
         #     header = card.find("div", {"class": "mb-3 flex w-full items-center lg:mb-0 lg:w-auto"})
         #     name = header.find("h3", {"class": "mr-2 font-bold text-brand-900 lg:mr-3"}).text # type: ignore
-
-            java_ip = card.find("input", {"class": "cursor-pointer text-green-700 bg-transparent font-bold text-inter text-center focus:outline-hidden"}).attrs.get("value") # pyright: ignore[reportOptionalMemberAccess, reportAttributeAccessIssue]
+            java_ip = card.find("span", {"class": "cursor-pointer text-green-700 bg-transparent font-bold text-inter whitespace-nowrap"}).text # pyright: ignore[reportOptionalMemberAccess, reportAttributeAccessIssue]
+            # print(java_ip)
             if not java_ip:
                 continue
             else:
@@ -112,10 +130,8 @@ class MinecraftBestServersParser(CloudflareParser):
                 print(full_bedrock_java_ip)
 
             # TODO: Add Bedrock support
-            serverCheck = ServerValidator(java_ip, False).is_valid_mcstatus()
-            if serverCheck:
-                entry = JavaServer(java_ip, server_name_number, online, themes, serverCheck)
-                self.all_servers.append(entry)
+            future = self.executor.submit(self.check_server, java_ip, server_name_number, online, themes)
+            self.futures.append(future)
 
         pass
 

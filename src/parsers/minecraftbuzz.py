@@ -38,16 +38,34 @@ class MinecraftBuzzParser(CloudflareParser):
         else:
             self.max_page = int(page)
 
+    def check_server(self, name, ip):
+        serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page)
+        
+        if serverCheck:
+            return McBeeBasicEntry(name, ip, serverCheck)
+        return None
+
     def get_parse_everything(self):
         self.is_empty = False
         for page in range(1, self.max_page+1):
-            print(f"\rGrabbing page {page}... (new servers: {len(self.all_servers)})", end="")
+            self.pages_parsed = page
+            self.print_status(self.max_page)
             data = self.get_page(page)
             self.parse_elements(data)
-            page += 1
-        print()
+            self.print_status(self.max_page)
+        
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers[server_entry.ip] = server_entry
+        self.executor.shutdown(wait=True)
 
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
 
     # type: ignore
     def parse_elements(self, data: str):
@@ -55,15 +73,11 @@ class MinecraftBuzzParser(CloudflareParser):
         l1: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 py-lg-2 border-bottom border-lg-none"}) # type: ignore
         l2: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 py-lg-2 border-bottom border-lg-none non-sponsor"}) # type: ignore
         l = l1 + l2
-        print(f": {len(l)}", end="")
         for elem in l:
             ip = elem.find("data", {"class": "ip-block"}).text # type: ignore
             name = elem.find("h3", {"class": "fs-6 w-100"}).text # type: ignore
-            # print(f"'{ip}'")
-            serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
-            if serverCheck:
-                entry = McBeeBasicEntry(name, ip, serverCheck)
-                self.all_servers[ip] = entry
+            future = self.executor.submit(self.check_server, name, ip)
+            self.futures.append(future)
         
     def print_ask(self, server: McBeeBasicEntry, i: int):
         status = server.status

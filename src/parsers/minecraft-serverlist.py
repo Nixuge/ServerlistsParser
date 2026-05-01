@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup, Tag
 
 from dataclasses import dataclass
+from typing import Optional
 
 from bs4 import BeautifulSoup, Tag
 from classes.CloudflareParser import CFSeleniumOptions, CloudflareParser
@@ -41,13 +42,38 @@ class MinecraftServerListComParser(CloudflareParser):
     def get_parse_everything(self):
         self.is_empty = False
         for page in range(1, self.max_page+1):
-            print(f"\rGrabbing page {page}... (new servers: {len(self.all_servers)})", end="")
             data = self.get_page(page)
+            self.pages_parsed += 1
+            self.print_status(self.max_page)
             self.parse_elements(data)
-            page += 1
-        print()
 
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for future in self.futures:
+            result = future.result()
+            if result:
+                self.all_servers[result.ip] = result
+
+        self.executor.shutdown(wait=True)
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
+
+    def check_server(self, ip: str, num: str, name: str, online: str) -> Optional[McSrvListComJavaEntry]:
+        serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page)
+
+        if not serverCheck:
+            return None
+
+        return McSrvListComJavaEntry(
+            num,
+            name,
+            ip,
+            online,
+            serverCheck
+        )
 
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
@@ -82,18 +108,8 @@ class MinecraftServerListComParser(CloudflareParser):
             # print(num)
             # print(edition)
             # input("===============")
-            serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
-            if not serverCheck:
-                continue
-
-
-            self.all_servers[ip] = McSrvListComJavaEntry(
-                num,
-                name,
-                ip,
-                online,
-                serverCheck
-            )
+            future = self.executor.submit(self.check_server, ip, num, name, online)
+            self.futures.append(future)
 
         
     def print_ask(self, server: McSrvListComJavaEntry, i: int):

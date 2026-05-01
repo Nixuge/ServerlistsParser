@@ -53,14 +53,35 @@ class NameMCParser(CloudflareParser):
 
     def get_parse_everything(self):
         for i in range(1, self.end_page+1):
-            print(f"\rGrabbing page {i}... (new servers: {self.new_servers})", end="")
             data = self.get_page(i)
+            self.pages_parsed += 1
+            self.print_status(self.end_page)
             self.parse_elements(data)
 
-        if self.PRINT_DOWN_SERVERS:
-            print(f"Servers down: {self.servers_down}")
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for future in self.futures:
+            result = future.result()
+            if result:
+                self.all_servers[result.ip] = result
+        
+        self.executor.shutdown(wait=True)
 
+        if self.PRINT_DOWN_SERVERS:
+            print(f"\nServers down: {self.servers_down}")
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
+
+    def check_server(self, ip: str, playercount: str, motd: str):
+        serverCheck = ServerValidator(ip, self.PRINT_DOWN_SERVERS).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.end_page)
+        
+        if not serverCheck:
+            return None
+        
+        return Server(ip, playercount, motd, serverCheck)
     
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
@@ -86,14 +107,8 @@ class NameMCParser(CloudflareParser):
             else:
                 motd = motd_elem[2].text.replace("\n", "----").strip()
 
-            serverCheck = ServerValidator(ip, self.PRINT_DOWN_SERVERS).is_valid_mcstatus()
-            if not serverCheck:
-                continue
-            
-            self.all_servers[ip] = Server(ip, playercount, motd, serverCheck)
-            count += 1
-        
-        self.new_servers += count
+            future = self.executor.submit(self.check_server, ip, playercount, motd)
+            self.futures.append(future)
     
     # def print_ask(self, server: Server, i: int):
     #     print(f"=========={i}/{len(self.all_servers)}==========")

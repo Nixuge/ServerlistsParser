@@ -35,15 +35,48 @@ class FindMcServerParser(CloudflareParser):
     def ask_config(self):
         pass
         
+    def check_server(self, server: Server):
+        # Hidden IP check
+        if server.ip == "IP Address Hidden":
+            self.hidden_ips.add(server.name)
+            return None
+        
+        # If bedrock, only run already_present check
+        if server.is_bedrock:
+            if is_already_present(server.ip_port, True):
+                return None
+            return server
+            
+        # Otherwise run whole ServerValidator on Java servers
+        serverCheck = ServerValidator(server.ip_port, self.PRINT_HIDDEN_IPS).is_valid_mcstatus()
+
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status()            
+        if not serverCheck:
+            return None
+        return server
+
     def get_parse_everything(self):
         self.isEmpty = False
         page = 0
         while not self.isEmpty:
+            self.pages_parsed = page
+            self.print_status()
             data = self.get_page(page)
             page += 1
             self.parse_elements(data)
-            print(f"\rParsed page {page}...", end="")
-        print(f"Done, got {len(self.all_servers)} new servers.")
+            self.print_status()
+        
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
+            
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def parse_elements(self, data: str):
         servers_raw = []
@@ -81,22 +114,8 @@ class FindMcServerParser(CloudflareParser):
             to_replace = ":19132" if server.is_bedrock else ":25565"
             server.ip_port = f"{server.ip}:{server.port}".replace(to_replace, "")
             
-            # Hidden IP check
-            if server.ip == "IP Address Hidden":
-                self.hidden_ips.add(server.name)
-                continue
-            
-            # If bedrock, only run already_present check
-            if server.is_bedrock:
-                if is_already_present(server.ip_port, True):
-                    continue
-            # Otherwise run whole ServerValidator on Java servers
-            else:
-                serverCheck = ServerValidator(server.ip_port, self.PRINT_HIDDEN_IPS).is_valid_mcstatus()
-                if not serverCheck:
-                    continue
-            
-            self.all_servers.append(server)
+            future = self.executor.submit(self.check_server, server)
+            self.futures.append(future)
         
             
     def print_ask(self, server: Server, i: int):

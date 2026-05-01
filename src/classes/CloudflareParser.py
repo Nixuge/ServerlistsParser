@@ -37,6 +37,7 @@ class CloudflareParser(BaseParser):
     selenium_opts: CFSeleniumOptions
     page_url: str
     def __init__(self, page_url: str, selenium_opts: CFSeleniumOptions) -> None:
+        super().__init__()
         self.scraper = cloudscraper.create_scraper()
         self.selenium_opts = selenium_opts
         self.selenium = make_webdriver() if selenium_opts.always_use_selenium else None

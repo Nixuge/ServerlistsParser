@@ -27,17 +27,35 @@ class BteParser(BaseParser):
     all_servers: list
     max_page: int
     def __init__(self) -> None:
+        super().__init__()
         self.all_servers = []
 
     def ask_config(self):
         pass
+
+    def check_server(self, name, desc, where, ip, color):
+        serverCheck = ServerValidator(ip, False, False).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status()
+        if serverCheck:
+            return JavaServer(name, desc, where, ip, color, serverCheck)
+        return None
 
     def get_parse_everything(self):
         res = httpx.get("https://buildtheearth.net/teams").text
         res = res.split('"data":')[1].split('"_nextI18Next":')[0].strip().removesuffix(",")
         self.parse_elements(json.loads(res))
         
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
+        
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def get_page(self, page: int) -> None:
         pass
@@ -46,25 +64,15 @@ class BteParser(BaseParser):
         if len(data) == 0:
             self.is_empty = True
         
-        i = 1
-        print()
         for elem in data:
-            print(f"\rChecking BTE server {i}/{len(data)}", end="")
             name = elem["name"]
             desc = elem["about"]
             where = elem["slug"]
             ip = elem["ip"]
             color = termcolor.hex(elem["color"])
 
-            print(f"\n{name}; {ip}")
-            serverCheck = ServerValidator(ip, False, False).is_valid_mcstatus()
-            if serverCheck:
-                entry = JavaServer(name, desc, where, ip, color, serverCheck)
-                self.all_servers.append(entry)
-            
-            i+=1
-
-        print()
+            future = self.executor.submit(self.check_server, name, desc, where, ip, color)
+            self.futures.append(future)
 
     def print_ask(self, server: JavaServer, i: int):
         print(f"============================== {i}/{len(self.all_servers)} ==============================")

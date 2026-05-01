@@ -30,6 +30,7 @@ class MineRankParser(BaseParser):
     max_page: int
     bedrock: bool
     def __init__(self) -> None:
+        super().__init__()
         self.all_servers = []
 
     def ask_config(self):
@@ -41,20 +42,35 @@ class MineRankParser(BaseParser):
         
         self.bedrock = input("Process bedrock servers? TODO (y/N): ").strip().lower() in ("y", "o")
 
+    def check_server(self, rank, name, website, country, gamemode, ip, desc):
+        serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
+        with self.print_lock:
+            self.servers_requested += 1
+            if serverCheck:
+                self.valid_servers_found += 1
+            self.print_status(self.max_page)
+        if serverCheck:
+            return JavaServer(rank, name, website, country, gamemode, ip, desc, serverCheck)
+        return None
 
     def get_parse_everything(self):
         self.is_empty = False
         page = 1
         while not self.is_empty and page <= self.max_page:
-            print(f"\rGrabbing page {page}...", end="")
+            self.pages_parsed = page
+            self.print_status(self.max_page)
             data = self.get_page(page)
             self.parse_elements(data)
-            print(f" {len(self.all_servers)} elements", end="")
+            self.print_status(self.max_page)
             page += 1
-        print()
 
-        # self.driver.close()
-        print(f"Done, got {len(self.all_servers)} new servers.")
+        for future in self.futures:
+            server_entry = future.result()
+            if server_entry:
+                self.all_servers.append(server_entry)
+        self.executor.shutdown(wait=True)
+
+        print(f"\nDone, got {len(self.all_servers)} new servers.")
     
     def get_page(self, page: int) -> list:
         res = httpx.post(
@@ -83,14 +99,8 @@ class MineRankParser(BaseParser):
                 ip += str(port)
             
             desc = elem["general_description_short"]
-            # print("ip: '" + ip + "'")
-            serverCheck = ServerValidator(ip, False).is_valid_mcstatus()
-            if serverCheck:
-                # print("cc")
-                entry = JavaServer(rank, name, website, country, gamemode, ip, desc, serverCheck)
-                self.all_servers.append(entry)
-
-        pass
+            future = self.executor.submit(self.check_server, rank, name, website, country, gamemode, ip, desc)
+            self.futures.append(future)
 
     def print_ask(self, server: JavaServer, i: int):
         print(f"============================== {i}/{len(self.all_servers)} ==============================")
