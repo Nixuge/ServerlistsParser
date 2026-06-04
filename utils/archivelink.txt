@@ -1,0 +1,2 @@
+List of namemc urls archived:
+https://web.archive.org/cdx/search/cdx?url=namemc.com/server/*&output=txt&fl=original&collapse=urlkey

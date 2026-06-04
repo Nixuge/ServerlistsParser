@@ -8,7 +8,7 @@ const server = Bun.serve({
     if (req.method === "OPTIONS") {
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin": "https://www.google.com",
+          "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         },
@@ -23,7 +23,7 @@ const server = Bun.serve({
       return new Response("Data saved!", {
         status: 200,
         headers: {
-          "Access-Control-Allow-Origin": "https://www.google.com",
+          "Access-Control-Allow-Origin": "*",
         },
       });
     }
@@ -32,7 +32,7 @@ const server = Bun.serve({
     return new Response("Send a POST request with your data.", {
       status: 400,
       headers: {
-        "Access-Control-Allow-Origin": "https://www.google.com",
+        "Access-Control-Allow-Origin": "*",
       },
     });
   },

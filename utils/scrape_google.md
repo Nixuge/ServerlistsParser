@@ -10,3 +10,5 @@ Then, search for something, like:
 And simply copy the code in [scrapegoogle.js](./scrapegoogle.js) and paste it in your console, then up arrow every refresh until you're at the last page.
 
 You should now have all of the google results in `output.txt`
+
+Same with bing with scrapebing.js
