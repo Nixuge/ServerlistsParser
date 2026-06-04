@@ -15,11 +15,19 @@ def only_keep_main_domain(ip: str):
     if lenSplit >= 3:
         if split[-2] == "co" and split[-1] in ("uk", "il", "za", "nz"):
             return split[-3]
-        if split[-2] == "com" and split[-1] in ("br", "tr", "ar", "au"):
+        if split[-2] == "com" and split[-1] in ("br", "tr", "ar", "au", "ua"):
             return split[-3]
-        if split[-2] == "net" and split[-1] in ("br", "ar"):
+        if split[-2] == "net" and split[-1] in ("br", "ar", "tr"):
             return split[-3]
         if split[-2] == "in" and split[-1] in ("ua"):
+            return split[-3]
+        if split[-2] == "org" and split[-1] in ("tr"):
+            return split[-3]
+        # Yes, .my.id is for indonesia apparently
+        if split[-2] == "my" and split[-1] in ("id"):
+            return split[-3]
+        # Same with .id.vn for vietnam?
+        if split[-2] == "id" and split[-1] in ("vn"):
             return split[-3]
 
     return split[-2]
@@ -50,21 +58,35 @@ def ask_duplicate(ip: str, bedrock: bool):
         print("added to the ignored list.")
         return
     
+    if bedrock:
+        ips_filename = "ips_bedrock.txt"
+    else:
+        ips_filename = "ips.txt"
+
     duplicated = duplicated_answer in ["yes", "y", "oui", "o", "yip", "oip"]
     if duplicated:
         if bedrock:
-            name = "duplicates_bedrock.txt"
+            duplicates_filename = "duplicates_bedrock.txt"
         else:
-            name = "duplicates.txt"
+            duplicates_filename = "duplicates.txt"
         
         reason = input("Enter the server info: ")
-        add_server_dupe(name, remove_port_if(ip, duplicated_answer), reason)
+        
+        reason = reason.replace("\n", "")
+        reason = reason.strip()
+        if reason.endswith('",'):
+            reason = reason.strip('",')
+        if reason.startswith('"') or reason.endswith('"'):
+            reason = reason.strip('"')
+        
+        add_server_dupe(duplicates_filename, remove_port_if(ip, duplicated_answer), reason)
+
+        if input("Add duplicate server to saved ips list? ").lower() in ("y", "yes", "o", "oui"):
+            add_server(ips_filename, reason)
+            print(f"Added server {ip} to {ips_filename}")
+
     else:
-        if bedrock:
-            name = "ips_bedrock.txt"
-        else:
-            name = "ips.txt"
-        add_server(name, remove_port_if(ip, duplicated_answer))
+        add_server(ips_filename, remove_port_if(ip, duplicated_answer))
 
 def remove_port(ip: str) -> str:
     if not ":" in ip:

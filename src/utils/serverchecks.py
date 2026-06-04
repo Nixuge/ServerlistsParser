@@ -259,7 +259,12 @@ class ServerValidator:
             "pixelhubhost.com",
             "enx.host",
             "hidengame.com", # hidencloud
-
+            "hostify.cz",
+            "mcph.co", # Apex hosting
+            "campfirehosting.com",
+            "chmc.nl", # unsure as to if a ddns or just a normal free subdomain thing
+            "mc-play.org", # seems to be https://fps.ms
+            "bisquit.host",
             # UNKNOWN, but included for now:
             "ggwp.cc", # used by quite a bunch of servers, idk where its from
             "join-mc.com", # same
@@ -271,7 +276,9 @@ class ServerValidator:
             "connect-mc.com",
             "playwithbao.com",
             "feathermc.gg",
-            "mc-join.com"
+            "mc-join.com",
+            "mc-join.pro",
+            "mc-connect.xyz"
         ]
 
         for end in bad_ends:
@@ -347,6 +354,9 @@ class MotdValidator:
         if "GameShield" in motd and "Backend is offline." in motd:
             return False, "GameShield, Backend is offline."
         
+        if "GameShield" in motd and "Domain not found." in motd:
+            return False, "GameShield, Domain not found."
+        
         if "powered by powerupstack.com for free" in motd:
             return False, "powerupstack.com"
         
@@ -358,6 +368,9 @@ class MotdValidator:
         
         if "Get this server more RAM for free! > craft.link/ram" in motd:
             return False, "craft.link/ram"
+        
+        if "Minefort.com - Server Hosting" in motd:
+            return False, "Mienfort.com"
 
         if default_motd_invalid and motd == "A Minecraft Server":
             return False, "A Minecraft Server"
