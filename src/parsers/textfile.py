@@ -15,13 +15,19 @@ from utils.serverchecks import ServerValidator
 class TextFileParser(BaseParser):
     SOURCE_PATH = "data/textfile.txt"
 
+    max_count: int
+
     all_servers: list[tuple[str, JavaStatusResponse]]
     def __init__(self) -> None:
         super().__init__()
         self.all_servers = []
 
     def ask_config(self):
-        pass
+        inp = input("How many max inputs do you wanna try: ")
+        if inp.strip() == "":
+            self.max_count = 99999999999999999
+        else:
+            self.max_count = int(inp)
     
     def check_server(self, server: str):
         server_check = ServerValidator(server).is_valid_mcstatus()
@@ -53,12 +59,17 @@ class TextFileParser(BaseParser):
             self.print_status()
             self.parse_elements(element.split(" ")[0].strip(), i+1, len(content))
             self.print_status()
+            if self.pages_parsed >= self.max_count:
+                break
             
         for future in self.futures:
             server_entry = future.result()
             if server_entry:
                 self.all_servers.append(server_entry)
         self.executor.shutdown(wait=True)
+
+        self.all_servers.sort(key=lambda x: x[1].players.online)
+        self.all_servers.reverse()
             
         print(f"\nDone, got {len(self.all_servers)} new servers.")
     
