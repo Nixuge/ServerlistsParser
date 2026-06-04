@@ -28,4 +28,10 @@ def motd_remove_section_signs(motd: str):
 #     return lines
 
 def get_formatted_motd(status: JavaStatusResponse) -> list[str]:
-    return ["motd: "] + status.motd.to_ansi().split("\n")
+    try:
+        return ["motd: "] + status.motd.to_ansi().split("\n")
+    except KeyError:
+        try:
+            return ["motd BROKEN COLOR: "] + status.motd.to_plain().split("\n")
+        except KeyError:
+            return ["MOTD FULLY BROKEN !"]
