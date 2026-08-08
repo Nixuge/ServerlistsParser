@@ -245,8 +245,10 @@ class ServerValidator:
             "pvppractice.xyz",
             # End SubHub / subdomain-manager.vercel.app
             "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
+            "mooo.com",
             "lamicohost.com",
             "skilloraclouds.site",
+            "realistic.host", # realisticnode
             "holy.gg", # game hosting too
             "lunarclient.world", # apparently lunar client has a proxy function???
             "wither.host", # wither hosting, they do have their own smp on play.wither.host

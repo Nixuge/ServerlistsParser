@@ -108,6 +108,9 @@ def is_already_present(ip: str, bedrock: bool = False):
     else:
         used_list = JAVA_LIST
     
+    if ip == "":
+        return True
+    
     ip = ip.lower()
 
     if ip in used_list:
