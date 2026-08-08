@@ -48,12 +48,15 @@ if " " in choice:
     run_multiple_parsers(all_parsers, ids)
 else:
     index = int(choice) - 1
-    if index == lenP:
-        run_all_bulk_parsers(all_parsers)
-    elif index == lenP+1:
-        run_all_parsers_forced(all_parsers)
-    else:
-        run_single_parser(all_parsers[index])
+    try:
+        if index == lenP:
+            run_all_bulk_parsers(all_parsers)
+        elif index == lenP+1:
+            run_all_parsers_forced(all_parsers)
+        else:
+            run_single_parser(all_parsers[index])
+    except KeyboardInterrupt:
+        print("\nKeyboardInterrupt triggered.")
 
 
 for file in FILES:

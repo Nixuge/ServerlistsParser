@@ -246,6 +246,10 @@ class ServerValidator:
             "playcraft.me",
             "pvppractice.xyz",
             # End SubHub / subdomain-manager.vercel.app
+            "hythost.com",
+            "foliumhosting.net",
+            "dat.gg", # dathost(?)
+            "myftp.biz", # noip freedns
             "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
             "serverpit.com",
             "mooo.com",
