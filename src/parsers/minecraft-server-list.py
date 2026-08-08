@@ -35,7 +35,10 @@ class MinecraftServerListParser(CloudflareParser):
     all_servers: dict[str, McSrvListEntry] #ip, server to remove duplicates
     def __init__(self) -> None:
         super().__init__("https://minecraft-server-list.com/page/%PAGE%/", CFSeleniumOptions((By.CLASS_NAME, "serverdatadiv1")))
-        self.all_servers = {}
+        self.all_servers: dict[str, McSrvListEntry] = {}
+
+    def order_servers(self):
+        self.all_servers = dict(sorted(self.all_servers.items(), key=lambda x: x[1].status.players.online, reverse=True))
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for 30): ")

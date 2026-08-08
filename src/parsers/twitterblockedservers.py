@@ -41,8 +41,12 @@ class BlockedServerParser(BaseParser):
     all_servers: list[BlockedServerEntry]
     down_servers: list[str]
     def __init__(self) -> None:
-        self.all_servers = []
+        self.all_servers: list[BlockedServerEntry] = []
         self.down_servers = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         pass

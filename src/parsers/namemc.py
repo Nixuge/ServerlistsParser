@@ -34,9 +34,12 @@ class NameMCParser(CloudflareParser):
             f"https://namemc.com/minecraft-servers?page=%PAGE%", 
             CFSeleniumOptions((By.CLASS_NAME, "mb-2"), clear_every_request=True)
         )
-        self.all_servers = {}
+        self.all_servers: dict[str, Server] = {}
         self.servers_down = set()
         self.new_servers = 0
+
+    def order_servers(self):
+        self.all_servers = dict(sorted(self.all_servers.items(), key=lambda x: x[1].status.players.online, reverse=True))
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for 30): ")

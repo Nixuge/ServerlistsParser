@@ -33,7 +33,11 @@ class LabymodTextFileParser(BaseParser):
     all_servers: list[LabyServer]
     def __init__(self) -> None:
         super().__init__()
-        self.all_servers = []
+        self.all_servers: list[LabyServer] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         pass

@@ -40,7 +40,11 @@ class LabymodServerMediaParser(BaseParser):
         os.system(f"cd {self.CACHE_DIR} && git clone https://github.com/LabyMod/server-media/")
         os.system(f"cd {self.CACHE_DIR} && cd server-media && git pull")
 
-        self.all_servers = []
+        self.all_servers: list[LabyServer] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         try: 

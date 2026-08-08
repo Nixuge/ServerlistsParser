@@ -29,14 +29,18 @@ class Server:
     status: JavaStatusResponse
 
 class CurseForgeParser(CloudflareParser):
-    all_servers: list 
+    all_servers: list[Server] 
     max_page: int
     def __init__(self) -> None:
         super().__init__(
             "https://www.curseforge.com/servers/minecraft?page=%PAGE%", 
             CFSeleniumOptions((By.XPATH, '/html/body/div[1]/div/main/div[2]/div/div[1]/div[1]/div/div'), always_use_selenium=True)
         )
-        self.all_servers = []
+        self.all_servers: list[Server] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for unlimited): ")

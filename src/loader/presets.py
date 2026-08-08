@@ -9,6 +9,7 @@ def run_single_parser(parser_meta: ParserMeta):
 
     parser.ask_config()
     parser.get_parse_everything()
+    parser.order_servers()
     parser.print_ask_all()
     parser.end()
 
@@ -59,6 +60,7 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
         print("----------")
     
     for meta, parser in parsers:
+        parser.order_servers()
         print(f"Asking for parser parser {meta.name}")
         parser.print_ask_all()
 

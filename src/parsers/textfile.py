@@ -20,7 +20,11 @@ class TextFileParser(BaseParser):
     all_servers: list[tuple[str, JavaStatusResponse]]
     def __init__(self) -> None:
         super().__init__()
-        self.all_servers = []
+        self.all_servers: list[tuple[str, JavaStatusResponse]] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x[1].players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         inp = input("How many max inputs do you wanna try: ")
@@ -76,9 +80,6 @@ class TextFileParser(BaseParser):
             if server_entry:
                 self.all_servers.append(server_entry)
         self.executor.shutdown(wait=True)
-
-        self.all_servers.sort(key=lambda x: x[1].players.online)
-        self.all_servers.reverse()
             
         print(f"\nDone, got {len(self.all_servers)} new servers.")
     
@@ -89,7 +90,6 @@ class TextFileParser(BaseParser):
 
     def print_ask(self, ip: str, status: JavaStatusResponse, i: int):
         print(f"============================== {i}/{len(self.all_servers)} ==============================")
-
 
         lines = [
             f"ip: {ip}",

@@ -43,12 +43,29 @@ class LunarServerMappingsParser(BaseParser):
         super().__init__()
         if not os.path.exists(self.CACHE_DIR):
             os.makedirs(self.CACHE_DIR)
-        os.system(f"cd {self.CACHE_DIR} && git clone https://github.com/LunarClient/ServerMappings")
-        os.system(f"cd {self.CACHE_DIR} && cd ServerMappings && git pull")
+            
+        # os.system(f"cd {self.CACHE_DIR} && git clone https://github.com/LunarClient/ServerMappings")
+        # os.system(f"cd {self.CACHE_DIR} && cd ServerMappings && git pull")
 
-        self.all_servers = []
+        repo = f"{self.CACHE_DIR}/ServerMappings"
+
+        if os.path.exists(f"{repo}/.git"):
+            os.system(f"cd '{repo}' && git pull")
+        else:
+            os.system(
+                f"mkdir -p '{self.CACHE_DIR}' && cd '{self.CACHE_DIR}' && "
+                "git clone --filter=blob:none --no-checkout https://github.com/LunarClient/ServerMappings && "
+                "cd ServerMappings && git config core.sparseCheckout true && "
+                "printf '/*\\n!*.png\\n!/**/*.png\\n' > .git/info/sparse-checkout && git checkout"
+            )
+
+        self.all_servers: list[LunarServer] = []
         with open(f"{self.GIT_DIR}/inactive.json") as f:
             self.inactive = json.load(f)
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         self.show_inactive = input("Show inactive servers? (y/N): ").lower() == 'y'

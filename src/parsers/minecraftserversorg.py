@@ -29,14 +29,18 @@ class JavaServer:
 
 
 class MinecraftServersOrgParser(CloudflareParser):
-    all_servers: list 
+    all_servers: list[JavaServer] 
     max_page: int
     def __init__(self) -> None:
         super().__init__(
             "https://minecraftservers.org/index/%PAGE%", 
             CFSeleniumOptions((By.XPATH, '//*[@id="wrapper"]/main/section[2]/div[1]/div[1]/div/div'), always_use_selenium=True)
         )
-        self.all_servers = []
+        self.all_servers: list[JavaServer] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for 30): ")

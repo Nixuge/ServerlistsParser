@@ -26,12 +26,16 @@ class JavaServer:
 
 
 class MineRankParser(BaseParser):
-    all_servers: list
+    all_servers: list[JavaServer]
     max_page: int
     bedrock: bool
     def __init__(self) -> None:
         super().__init__()
-        self.all_servers = []
+        self.all_servers: list[JavaServer] = []
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.status.players.online)
+        self.all_servers.reverse()
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for 30): ")

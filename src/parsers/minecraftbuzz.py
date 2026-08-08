@@ -29,7 +29,10 @@ class MinecraftBuzzParser(CloudflareParser):
     all_servers: dict[str, McBeeBasicEntry]
     def __init__(self) -> None:
         super().__init__("https://minecraft.buzz/java/%PAGE%/", CFSeleniumOptions((By.XPATH, "/html/body/div[1]/div/div/table/tbody/tr")))
-        self.all_servers = {}
+        self.all_servers: dict[str, McBeeBasicEntry] = {}
+
+    def order_servers(self):
+        self.all_servers = dict(sorted(self.all_servers.items(), key=lambda x: x[1].status.players.online, reverse=True))
 
     def ask_config(self):
         page = input("Enter the max page to go for (nothing for 30): ")

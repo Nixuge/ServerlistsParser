@@ -29,8 +29,12 @@ class FindMcServerParser(CloudflareParser):
             "https://findmcserver.com/api/servers?pageNumber=%PAGE%&pageSize=15&sortBy=name_asc",
             CFSeleniumOptions((By.CSS_SELECTOR, "pre"))
         )
-        self.all_servers = []
+        self.all_servers: list[Server] = []
         self.hidden_ips = set()
+
+    def order_servers(self):
+        self.all_servers.sort(key=lambda x: x.playercount)
+        self.all_servers.reverse()
 
     def ask_config(self):
         pass

@@ -16,7 +16,11 @@ class BaseParser:
     def print_status(self, max_page: int | str | None = None):
         max_page_str = self.pages_parsed if max_page == None else f"{self.pages_parsed}/{max_page}"
         print(f"\r{max_page_str} pages parsed, {self.servers_requested}/{len(self.futures)} servers requested, {self.valid_servers_found} new servers...    ", end="", flush=True)
-
+    
+    @abstractmethod
+    def order_servers(self):
+        raise Exception("Cannot call abstract method")
+    
     @abstractmethod
     def ask_config(self):
         raise Exception("Cannot call abstract method")
