@@ -73,12 +73,12 @@ class MinecraftBuzzParser(CloudflareParser):
     # type: ignore
     def parse_elements(self, data: str):
         soup = BeautifulSoup(data, 'html.parser')
-        l1: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 py-lg-2 border-bottom border-lg-none"}) # type: ignore
-        l2: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 py-lg-2 border-bottom border-lg-none non-sponsor"}) # type: ignore
+        l1: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 border-bottom border-lg-none"}) # type: ignore
+        l2: list[Tag] = soup.find_all("tr", {"class": "row server-row server-listing py-3 border-bottom border-lg-none non-sponsor"}) # type: ignore
         l = l1 + l2
         for elem in l:
             ip = elem.find("data", {"class": "ip-block"}).text # type: ignore
-            name = elem.find("h3", {"class": "fs-6 w-100"}).text # type: ignore
+            name = elem.find("h2", {"class": "fs-6 w-100"}).text # type: ignore
             future = self.executor.submit(self.check_server, name, ip)
             self.futures.append(future)
         

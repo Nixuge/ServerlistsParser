@@ -136,6 +136,7 @@ class ServerValidator:
             "exaroton.me",
             "eagler.host",
             # Start playit part
+            "ply.gg",
             "playit.buzz",
             "playit.cafe",
             "playit.city",
@@ -234,6 +235,7 @@ class ServerValidator:
             "falix.gg", # same i think
             "sereinhost.com", # game host
             "ateex.cloud", # game host
+            "ateex.fun", # Same as above(?)
             "vultam.host", # vultam.net
             "mcserver.host", # kinetic hosting
             "mcgg.nl", # freezehost
@@ -245,6 +247,7 @@ class ServerValidator:
             "pvppractice.xyz",
             # End SubHub / subdomain-manager.vercel.app
             "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
+            "serverpit.com",
             "mooo.com",
             "lamicohost.com",
             "skilloraclouds.site",
@@ -255,6 +258,7 @@ class ServerValidator:
             "apsara.fun", # apsara.host
             "play2go.cloud",
             "lagless.games", # lagless.gg
+            "hostzy.xyz",
             "banglaverse.net",
             "khanclouds.net",
             "pufferfish.host",
@@ -263,6 +267,8 @@ class ServerValidator:
             "hidengame.com", # hidencloud
             "hostify.cz",
             "mcph.co", # Apex hosting
+            "mc.gg", # Apex hosting
+            "snownode.cc",
             "campfirehosting.com",
             "chmc.nl", # unsure as to if a ddns or just a normal free subdomain thing
             "mc-play.org", # seems to be https://fps.ms
