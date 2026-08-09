@@ -200,12 +200,15 @@ class ServerValidator:
             "shockbyte.cc",
             "duckdns.org",
             "mysrv.us", #sparkedhost
+            "minecra.fr", #same
             "craft.gg", #omgserv
             "serv.nu", #server.pro
             "serv.gs", #server.pro
             "mcpro.io", #server.pro
             "mcserv.me", #server.pro
+            "mygs.co", #server.pro
             "ferox.host", #feroxhosting.nl
+            "ozima.bond", #ozima(?)
             "srvplay.eu", #unknown
             "jogar.io", #unknown
             "qzz.io", # domain.digitalplat.org, free domain
@@ -228,6 +231,11 @@ class ServerValidator:
             "graj.today", # hosting-minecraft.eu
             "mclan.ru", # hosting-minecraft.pro
             "joinserver.ru", # hosting-minecraft.pro
+            "aboba.host", # hosting-minecraft.pro
+            "mcmem.ru", # hosting-minecraft.pro
+            "versenode.site",
+            "freezehost.pro",
+            "playmc.be", # fps.ms
             "hostcraft.xyz",
             "minekube.net", # some AI shit
             "mcsh.io", # mcserverhost free servers
@@ -238,6 +246,7 @@ class ServerValidator:
             "ateex.fun", # Same as above(?)
             "vultam.host", # vultam.net
             "mcserver.host", # kinetic hosting
+            "kinetic.host", # same
             "mcgg.nl", # freezehost
             "nethr.nl", # freezehost
             # Start SubHub / subdomain-manager.vercel.app
@@ -248,6 +257,7 @@ class ServerValidator:
             # End SubHub / subdomain-manager.vercel.app
             "hythost.com",
             "foliumhosting.net",
+            "flashhost.com.br",
             "dat.gg", # dathost(?)
             "myftp.biz", # noip freedns
             "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
@@ -282,6 +292,7 @@ class ServerValidator:
             "join-mc.com", # same
             "ultramc.co", # same
             "funserver.top",
+            "ultraga.me", # ultraservers.com
             "mcjoin.fun",
             "playmc.at",
             "smpserver.net",
@@ -369,7 +380,7 @@ class MotdValidator:
         if "GameShield" in motd and "Domain not found." in motd:
             return False, "GameShield, Domain not found."
         
-        if "powered by powerupstack.com for free" in motd:
+        if "Powered by powerupstack.com for free" in motd:
             return False, "powerupstack.com"
         
         if "This domain does not exists." in motd:

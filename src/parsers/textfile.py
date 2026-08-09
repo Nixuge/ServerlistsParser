@@ -56,16 +56,21 @@ class TextFileParser(BaseParser):
         with open(self.SOURCE_PATH) as file:
             content = file.readlines()
 
-        content = list(set(content))
         for i, elem in enumerate(content):
             if elem.startswith("https://namemc.com/server/"):
                 elem = elem.split("https://namemc.com/server/", 1)[1]
+            
+            if elem.startswith("https://minechecker.com/status/java/"):
+                elem = elem.split("https://minechecker.com/status/java/", 1)[1]
+            
             if "/" in elem:
                 elem = elem.split("/")[0]
             if "?" in elem:
                 elem = elem.split("?")[0]
             
             content[i] = elem 
+        
+        content = list(set(content))
 
         for i, element in enumerate(content):
             self.pages_parsed = i + 1

@@ -52,7 +52,10 @@ def run_multiple_parsers(parser_metas: list[ParserMeta], indexes: Iterable[int])
     
     for meta, parser in parsers:
         print(f"Running parser {meta.name} (v{meta.version}) for {meta.website}")
-        parser.get_parse_everything()
+        try:
+            parser.get_parse_everything()
+        except Exception as e:
+            print(f"P\narser {meta.name} failed with exception {e}")
         #not sure if that should be put here, as of now it only clears selenium 
         # (which only happens during the parsing) so it's ok,
         # but if in the future it changes some other things needed in print_ask_all may need to put it further down
