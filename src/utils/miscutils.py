@@ -17,7 +17,7 @@ def only_keep_main_domain(ip: str):
             return split[-3]
         if split[-2] == "com" and split[-1] in ("br", "tr", "ar", "au", "ua", "pl"):
             return split[-3]
-        if split[-2] == "net" and split[-1] in ("br", "ar", "tr"):
+        if split[-2] == "net" and split[-1] in ("br", "ar", "tr", "au"):
             return split[-3]
         if split[-2] == "in" and split[-1] in ("ua"):
             return split[-3]
@@ -62,6 +62,25 @@ def ask_duplicate(ip: str, bedrock: bool):
         ips_filename = "ips_bedrock.txt"
     else:
         ips_filename = "ips.txt"
+    
+    # Switch is like duplicate but invert
+    # in case an ip already exists but we want to switch w the new one
+    if duplicated_answer in ["switch", "ipswitch", "switchip"]:
+        if bedrock:
+            duplicates_filename = "duplicates_bedrock.txt"
+        else:
+            duplicates_filename = "duplicates.txt"
+        
+        old_server = input("Enter the server info: ")
+        
+        old_server = old_server.replace("\n", "")
+        old_server = old_server.strip()
+        if old_server.endswith('",'):
+            old_server = old_server.strip('",')
+        if old_server.startswith('"') or old_server.endswith('"'):
+            old_server = old_server.strip('"')
+        
+        add_server_dupe(duplicates_filename, old_server, remove_port_if(ip, duplicated_answer))
 
     duplicated = duplicated_answer in ["yes", "y", "oui", "o", "yip", "oip"]
     if duplicated:
