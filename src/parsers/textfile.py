@@ -13,13 +13,12 @@ from utils.termutils import print_with_icon
 from utils.serverchecks import ServerValidator
 
 class TextFileParser(BaseParser):
-    SOURCE_PATH = "data/textfile.txt"
-
     max_count: int
 
     all_servers: list[tuple[str, JavaStatusResponse]]
-    def __init__(self) -> None:
+    def __init__(self, source_path: str = "data/textfile.txt") -> None:
         super().__init__()
+        self.source_path = source_path
         self.all_servers: list[tuple[str, JavaStatusResponse]] = []
 
     def order_servers(self):
@@ -48,25 +47,44 @@ class TextFileParser(BaseParser):
     def get_parse_everything(self):
         if not os.path.isdir("data/"):
             os.makedirs("data/")
-        if not os.path.isfile(self.SOURCE_PATH):
-            open(self.SOURCE_PATH, "a").close()
+        if not os.path.isfile(self.source_path):
+            open(self.source_path, "a").close()
             print("File textfile.txt didn't exist. Now created. Please put your data in it.")
             return
 
-        with open(self.SOURCE_PATH) as file:
+        with open(self.source_path) as file:
             content = file.readlines()
 
         for i, elem in enumerate(content):
-            if elem.startswith("https://namemc.com/server/"):
-                elem = elem.split("https://namemc.com/server/", 1)[1]
+            elem = elem.strip()
             
-            if elem.startswith("https://minechecker.com/status/java/"):
-                elem = elem.split("https://minechecker.com/status/java/", 1)[1]
+            for prefix in (
+                ("https://www.", "https://"),
+            ):
+                if elem.startswith(prefix[0]):
+                    elem = prefix[1] + elem.split(prefix[0], 1)[1]
+
+            for domain in (
+                "https://namemc.com/server/",
+                "https://minechecker.com/status/java/",
+                "https://mcsrvstat.us/server/",
+                "https://mcstatus.io/status/java/",
+                "https://minecraftpinger.com/?server=",
+                "https://minecraftserverstatus.com/server?url=",
+                "https://api.minetools.eu/ping/",
+                "https://minerank.com/pages/server-status-checker?host=",
+            ):
+                if elem.startswith(domain):
+                    elem = elem.split(domain, 1)[1]
+            
+            # if elem.startswith("https://"):
+                # print(f"WARN: Url {elem} starts with https")
             
             if "/" in elem:
                 elem = elem.split("/")[0]
             if "?" in elem:
                 elem = elem.split("?")[0]
+                
             
             content[i] = elem 
         
