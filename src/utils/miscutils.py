@@ -75,6 +75,7 @@ def ask_duplicate(ip: str, bedrock: bool):
             entry += f" // {comment}"
         
         add_badend_entry(entry)
+        return
     
     # Switch is like duplicate but invert
     # in case an ip already exists but we want to switch w the new one
@@ -94,6 +95,7 @@ def ask_duplicate(ip: str, bedrock: bool):
             old_server = old_server.strip('"')
         
         add_server_dupe(duplicates_filename, old_server, remove_port_if(ip, duplicated_answer))
+        return
 
     duplicated = duplicated_answer in ["yes", "y", "oui", "o", "yip", "oip"]
     if duplicated:
@@ -117,8 +119,10 @@ def ask_duplicate(ip: str, bedrock: bool):
             add_server(ips_filename, reason)
             print(f"Added server {ip} to {ips_filename}")
 
-    else:
-        add_server(ips_filename, remove_port_if(ip, duplicated_answer))
+        return
+    
+    
+    add_server(ips_filename, remove_port_if(ip, duplicated_answer))
 
 def remove_port(ip: str) -> str:
     if not ":" in ip:
