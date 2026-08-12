@@ -59,6 +59,11 @@ class WebarchiveLists(TextFileParser):
                 try:
                     print(f"Grabbing webarchive results for '{link}'...", end=" ", flush=True)
                     res = httpx.get(f"https://web.archive.org/cdx/search/cdx?url={link}&output=txt&fl=original&collapse=urlkey", timeout=30)
+                    code = res.status_code
+                    if code != 200:
+                        res = None
+                        raise Exception(f"Bad status code: {code}")
+                        
                 except Exception as e:
                     print(f"Failed ({e}), retrying")
             

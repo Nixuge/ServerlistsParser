@@ -89,8 +89,12 @@ class MinecraftServerListComParser(CloudflareParser):
             num = num.text # pyright: ignore[reportOptionalMemberAccess]
 
             name = server.find("div", {"class": "text-center lg:text-left text-gray-700 font-bold uppercase text-xl lg:text-[17px] truncate w-full lg:max-w-[13rem] px-6 lg:px-0 mb-1"}).find("span").text # type: ignore
-            online = server.find("span", {"class": "text-[13px]"}).text.replace("playing", "").strip() # type: ignore
-
+            try:
+                online = server.find("span", {"class": "text-[13px]"}).text.replace("playing", "").strip() # type: ignore
+            except:
+                # = offine
+                online = 0
+            
             # print("========================================")
             # print(server)
             ip = server.find("div", {"class": "copy-ip"})
