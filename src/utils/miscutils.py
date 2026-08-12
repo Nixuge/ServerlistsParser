@@ -1,6 +1,6 @@
 import pyperclip
 import tldextract
-from utils.fileutils import add_line, add_server, add_server_dupe
+from utils.fileutils import add_badend_entry, add_line, add_server, add_server_dupe
 
 from utils.vars import BEDROCK_LIST, JAVA_LIST
 
@@ -62,6 +62,19 @@ def ask_duplicate(ip: str, bedrock: bool):
         ips_filename = "ips_bedrock.txt"
     else:
         ips_filename = "ips.txt"
+    
+    if duplicated_answer in ["end"]:
+        bad_domain = ".".join(ip.split(".")[-2:])
+        bad_domain = bad_domain.split(":")[0]
+        bad_domain_input = input(f"Domain detected: {bad_domain}, is that right? (nothing = yes, otherwise enter the domain): ").strip()
+        entry = bad_domain if bad_domain_input == "" else bad_domain_input
+        comment = input("Do you want to add any comment? If yes, enter then here: ").strip()
+        
+        entry = f'    "{entry}",'
+        if comment != "":
+            entry += f" // {comment}"
+        
+        add_badend_entry(entry)
     
     # Switch is like duplicate but invert
     # in case an ip already exists but we want to switch w the new one

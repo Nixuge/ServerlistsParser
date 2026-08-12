@@ -10,6 +10,18 @@ OUTPUT_PATH = "a_out"
 with open(JSON_PATH, "r") as file:
     json_data = pyjson5.load(file) # pyright: ignore[reportArgumentType]
 
+
+BAD_SERVER_ENDS_FILENAME = "src/utils/bad_server_ends.json"
+try:
+    with open(BAD_SERVER_ENDS_FILENAME, "r") as f:
+        BAD_SERVER_ENDS = pyjson5.load(f) # pyright: ignore[reportArgumentType]
+    
+    print(f"Loaded {len(BAD_SERVER_ENDS)} bad server ends")
+except Exception as e:
+    print("Failed to load bad server ends !")
+    BAD_SERVER_ENDS = []
+
+
 JAVA_LIST = json_data["java_list"] + list(json_data["java"].values()) + list(json_data["duplicates"].keys())
 JAVA_LIST = [x.lower() for x in JAVA_LIST]
 

@@ -1,4 +1,4 @@
-from utils.vars import OUTPUT_PATH
+from utils.vars import BAD_SERVER_ENDS_FILENAME, OUTPUT_PATH
 
 
 def cleanup(filename):
@@ -24,3 +24,20 @@ def add_server(filename: str, ip: str):
 def add_line(filename: str, line: str):
     with open(filename, "a") as file:
         file.write(f"{line}\n")
+
+
+def add_badend_entry(line: str):
+    try:
+        with open(BAD_SERVER_ENDS_FILENAME, "r") as f:
+            data = f.read()
+    except:
+        data = "[\n]"
+    
+    data = data[:-1]
+    
+    data = data + line + "\n]"
+    try:
+        with open(BAD_SERVER_ENDS_FILENAME, "w") as f:
+            f.write(data)
+    except:
+        print("FAILED TO WRITE BAD END TO FILE!")

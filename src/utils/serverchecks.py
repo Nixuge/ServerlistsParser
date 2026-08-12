@@ -8,8 +8,7 @@ from utils.miscutils import is_already_present
 from utils.motdutils import motd_remove_section_signs
 from mcstatus.responses import JavaStatusResponse
 
-from utils.vars import CHECK_FAILED_SERVER_CACHE, USE_IGNORED_LIST
-
+from utils.vars import BAD_SERVER_ENDS, CHECK_FAILED_SERVER_CACHE, USE_IGNORED_LIST
 
 
 def is_ipv4(address):
@@ -115,196 +114,8 @@ class ServerValidator:
             ip_alone = self.ip.split(":")[0].lower()
         else:
             ip_alone = self.ip.lower()
-
-        bad_ends = [
-            "minehut.gg",
-            # Start DDNS
-            ".ddns.net",
-            "serveminecraft.net",
-            "hopto.org",
-            "run.place",
-            "mine.bz",
-            "cosmicdns.com",
-            "sytes.net",
-            "ooguy.com",
-            "0am.jp",
-            "chickenkiller.com",
-            "jo3.org",
-            # End DDNS
-            "aternos.me",
-            "aternos.host",
-            "exaroton.me",
-            "eagler.host",
-            # Start playit part
-            "ply.gg",
-            "playit.buzz",
-            "playit.cafe",
-            "playit.city",
-            "playit.fan",
-            "playit.game",
-            ".at.ply.gg",
-            "d6.ply.gg",
-            "joinmc.link",
-            "playit.love",
-            "playit.ooo",
-            "minecraft.party",
-            "terraria.party",
-            "playit.plus",
-            "*.at.playit.plus",
-            "with.playit.plus",
-            "terraria.pro",
-            "playit.pub",
-            "playit.quest",
-            # End playit part
-            # Start min3.online part
-            "3min.online",
-            "coldmc.online",
-            "coldsmp.online",
-            "coldsmp.xyz",
-            "craftserv.cloud",
-            "cr4ft.cloud",
-            "cr4ft.online",
-            "diamon.cloud",
-            "diamon.online",
-            "dismine.xyz",
-            "infernalsmp.xyz",
-            "min3.cloud",
-            "min3.fr",
-            "min3.site",
-            "min3.space",
-            "min3craft.cloud",
-            "min3craft.online",
-            "min3craft.space",
-            "mineblocks.online",
-            "mineplay.xyz",
-            "minestom.online",
-            "multimc.cloud",
-            "multimc.online",
-            "pixelblock.cloud",
-            "pixelmine.cloud",
-            "pixelmine.site",
-            "pixelmine.space",
-            "pikz.online",
-            "pixly.online",
-            "playcraft.cloud",
-            "playsmp.xyz",
-            "pyts.cloud",
-            "redstone.cloud",
-            "toxhosting.xyz",
-            # End min3.online part
-            "playit.gg", # different playit
-            "pyro.social",
-            "pebble.host",
-            "minecraft.vodka", # lilypad
-            "play.hosting", # lilypad partnered free hosting
-            "shockbyte.cc",
-            "duckdns.org",
-            "mysrv.us", #sparkedhost
-            "minecra.fr", #same
-            "craft.gg", #omgserv
-            "serv.nu", #server.pro
-            "serv.gs", #server.pro
-            "mcpro.io", #server.pro
-            "mcserv.me", #server.pro
-            "mygs.co", #server.pro
-            "ferox.host", #feroxhosting.nl
-            "ozima.bond", #ozima(?)
-            "srvplay.eu", #unknown
-            "jogar.io", #unknown
-            "qzz.io", # domain.digitalplat.org, free domain
-            "g-portal.game", # g-portal game host
-            "g-portal.rocks", # same
-            "serv.cx", # mintservers.com
-            "playwm.co", #winternode apparently?
-            "ethera.net", # ethera game host
-            "bed.ovh", # bedhosting.com.br
-            "modded.fun", # bisecthosting
-            "factions.ws", # bisecthosting
-            "gomc.fun", # russian game hosting
-            "atbphosting.com",
-            "lagfree.me", # TensionHost.com
-            "my-smp.net", # foliumhosting,
-            "folium.lol", # foliumhosting
-            "smp.quest", # foliumhosting
-            "mine.fun", # minestrator
-            "akliz.net", # game host
-            "graj.today", # hosting-minecraft.eu
-            "mclan.ru", # hosting-minecraft.pro
-            "joinserver.ru", # hosting-minecraft.pro
-            "aboba.host", # hosting-minecraft.pro
-            "mcmem.ru", # hosting-minecraft.pro
-            "versenode.site",
-            "freezehost.pro",
-            "playmc.be", # fps.ms
-            "hostcraft.xyz",
-            "minekube.net", # some AI shit
-            "mcsh.io", # mcserverhost free servers
-            "falixsrv.me", # falixnodes?
-            "falix.gg", # same i think
-            "sereinhost.com", # game host
-            "ateex.cloud", # game host
-            "ateex.fun", # Same as above(?)
-            "vultam.host", # vultam.net
-            "mcserver.host", # kinetic hosting
-            "kinetic.host", # same
-            "mcgg.nl", # freezehost
-            "nethr.nl", # freezehost
-            # Start SubHub / subdomain-manager.vercel.app
-            "mcnation.xyz",
-            "mineplay.pro",
-            "playcraft.me",
-            "pvppractice.xyz",
-            # End SubHub / subdomain-manager.vercel.app
-            "hythost.com",
-            "foliumhosting.net",
-            "flashhost.com.br",
-            "dat.gg", # dathost(?)
-            "myftp.biz", # noip freedns
-            "info.gf", # Note: LOTS of domain on this one: freedns.afraid.org/domain/registry/
-            "serverpit.com",
-            "mooo.com",
-            "lamicohost.com",
-            "skilloraclouds.site",
-            "realistic.host", # realisticnode
-            "holy.gg", # game hosting too
-            "lunarclient.world", # apparently lunar client has a proxy function???
-            "wither.host", # wither hosting, they do have their own smp on play.wither.host
-            "apsara.fun", # apsara.host
-            "play2go.cloud",
-            "lagless.games", # lagless.gg
-            "hostzy.xyz",
-            "banglaverse.net",
-            "khanclouds.net",
-            "pufferfish.host",
-            "pixelhubhost.com",
-            "enx.host",
-            "hidengame.com", # hidencloud
-            "hostify.cz",
-            "mcph.co", # Apex hosting
-            "mc.gg", # Apex hosting
-            "snownode.cc",
-            "campfirehosting.com",
-            "chmc.nl", # unsure as to if a ddns or just a normal free subdomain thing
-            "mc-play.org", # seems to be https://fps.ms
-            "bisquit.host",
-            # UNKNOWN, but included for now:
-            "ggwp.cc", # used by quite a bunch of servers, idk where its from
-            "join-mc.com", # same
-            "ultramc.co", # same
-            "funserver.top",
-            "ultraga.me", # ultraservers.com
-            "mcjoin.fun",
-            "playmc.at",
-            "smpserver.net",
-            "connect-mc.com",
-            "playwithbao.com",
-            "feathermc.gg",
-            "mc-join.com",
-            "mc-join.pro",
-            "mc-connect.xyz"
-        ]
-
-        for end in bad_ends:
+        
+        for end in BAD_SERVER_ENDS:
             if ip_alone.endswith(end):
                 dprint(f"bad server: ip ends with {end}")
                 return False
@@ -359,8 +170,8 @@ class MotdValidator:
         if "--[ Invalid Server ]--" in motd and "Protection by ⚡ Infinity-Filter.com ⚡" in motd:
             return False, "Infinity-Filter"
         
-        if "Server.Pro Official [1.21." in motd:
-            return False, "Server.Pro Official [1.21."
+        if "Server.Pro Official [" in motd:
+            return False, "Server.Pro Official ["
         
         if "This server is OFFLINE!" in motd:
             return False, "This server is OFFLINE!"
@@ -401,6 +212,9 @@ class MotdValidator:
             return False, "A Velocity Server"
         
         if default_motd_invalid and motd == "Just another BungeeCord - Forced Host":
+            return False, "Just another BungeeCord - Forced Host"
+        
+        if default_motd_invalid and motd == "Another Bungee server":
             return False, "Just another BungeeCord - Forced Host"
         
         return True, None
