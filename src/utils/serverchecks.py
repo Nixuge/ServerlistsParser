@@ -19,22 +19,33 @@ def is_ipv4(address):
         return False
 
 class FailedServers:
-    failed: list[str]
+    failed: dict[str, int]
     def __init__(self) -> None:
         if not os.path.isfile("cache/statusfailed.txt"):
             open("cache/statusfailed.txt", "a").close()
-            self.failed = []
+            self.failed = {}
         else:
             with open("cache/statusfailed.txt") as file:
-                self.failed = file.read().strip().split("\n")
+                self.failed = {}
+                for item in file.read().strip().split("\n"):
+                    line = item.split(" ")
+                    self.failed[line[0]] = int(line[1])
 
-    def is_failed(self, ip: str) -> bool:
-        return ip in self.failed
+    def is_failed(self, ip: str, threshold: int = 1) -> bool:
+        count = self.failed.get(ip, 0)
+        if count >= threshold:
+            return True
+        return False
     
     def add_failed(self, ip: str):
-        self.failed.append(ip)
-        with open("cache/statusfailed.txt", "a") as file:
-            file.write(f"{ip}\n")
+        current_fails = self.failed.get(ip, 0)
+        self.failed[ip] = current_fails + 1
+        # self.save_json()
+
+    def save_json(self):
+        with open("cache/statusfailed.txt", "w") as file:
+            for ip, num in self.failed.items():
+                file.write(f"{ip} {num}\n")
 
 class IgnoredServers:
     ignored_java: list[str]
@@ -64,12 +75,12 @@ class ServerValidator:
         self.print_reason = print_reason
         self.default_motd_invalid = default_motd_invalid
 
-    def is_valid_mcstatus(self) -> Literal[False] | JavaStatusResponse:
+    def is_valid_mcstatus(self, failed_threshold: int = 1) -> Literal[False] | JavaStatusResponse:
         if not self.is_valid():
             if self.print_reason: print(f"Server is invalid")
             return False
         
-        if CHECK_FAILED_SERVER_CACHE and FAILED_SERVERS.is_failed(self.ip):
+        if CHECK_FAILED_SERVER_CACHE and FAILED_SERVERS.is_failed(self.ip, threshold=failed_threshold):
             if self.print_reason: print(f"Server is in failed servers cache")
             return False
         

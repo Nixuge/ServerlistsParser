@@ -4,6 +4,7 @@ from loader.presets import run_all_bulk_parsers, run_all_parsers_forced, run_mul
 
 from utils.color import termcolor
 from utils.fileutils import cleanup, init_file
+from utils.serverchecks import FAILED_SERVERS
 
 FILES = ("duplicates.txt", "ips.txt", "duplicates_bedrock.txt", "ips_bedrock.txt")
 
@@ -61,3 +62,5 @@ else:
 
 for file in FILES:
     cleanup(file)
+
+FAILED_SERVERS.save_json()
