@@ -120,19 +120,25 @@ class MinecraftBestServersParser(CloudflareParser):
 
             full_bedrock_java_ip: str = card.find("button", {"class": "bg-[#31a936] shadow-sm border-b-4 border-black/10 rounded-md text-white font-bold py-4 px-6 mb-2 transition-transform hover:scale-105 hidden md:flex"}).attrs.get("@click.prevent") # type: ignore
             full_bedrock_java_ip = full_bedrock_java_ip.replace("$store.page.openServer('", "")
-            java_ip_inner = full_bedrock_java_ip.split("'")[0]
-            full_bedrock_java_ip = ", ".join(full_bedrock_java_ip.split(", ")[1:])
+            # java_ip_inner = full_bedrock_java_ip.split("'")[0]
+            full_bedrock_java_ip = full_bedrock_java_ip.split(", ", maxsplit=1)[1]
             full_bedrock_java_ip = full_bedrock_java_ip.removesuffix(")")
             
-            fixed_string = re.sub(r" (\w+): ", r' "\1": ', full_bedrock_java_ip)
-            
-            try:
-                data = ast.literal_eval(fixed_string)
-            except Exception as e:
-                print("FAILED TO JSON LOADS: " + str(e))
-                print(fixed_string)
-                print(full_bedrock_java_ip)
+            pattern = r"(\w+):\s*(?:'(.*?)'|(\d+)|(\w*))(?=\s*(?:,\s*\w+\s*:|\s*\}))"
 
+            res = {}
+            for key, str_val, num_val, bare_val in re.findall(pattern, full_bedrock_java_ip):
+                if str_val is not None and str_val != "":
+                    res[key] = str_val
+                elif num_val:
+                    res[key] = int(num_val)
+                elif bare_val is not None:
+                    res[key] = bare_val
+                else:
+                    res[key] = ""
+
+            # print(res)
+            
             # TODO: Add Bedrock support
             future = self.executor.submit(self.check_server, java_ip, server_name_number, online, themes)
             self.futures.append(future)
