@@ -21,7 +21,7 @@ class StatusFailedRetryer(TextFileParser):
 
         with open("data/statusfailed.txt", "w") as file:
             for line in res:
-                file.write(line)
+                file.write(f"{line}\n")
                 
         super().get_parse_everything()
     

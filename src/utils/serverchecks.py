@@ -28,9 +28,13 @@ class FailedServers:
             with open("cache/statusfailed.txt") as file:
                 self.failed = {}
                 for item in file.read().strip().split("\n"):
-                    line = item.split(" ")
-                    self.failed[line[0]] = int(line[1])
+                    line = item.strip().split(" ")
+                    if len(line) != 2:
+                        print(f"BAD STATUSFAILED LINE: {item}")
+                    else:
+                        self.failed[line[0]] = int(line[1])
 
+    # Note: input NEEDS to be stripped and without spaces.
     def is_failed(self, ip: str, threshold: int = 1) -> bool:
         count = self.failed.get(ip, 0)
         if count >= threshold:
@@ -71,7 +75,7 @@ class ServerValidator:
     print_reason: bool
     default_motd_invalid: bool
     def __init__(self, ip: str, print_reason: bool = False, default_motd_invalid: bool = True) -> None:
-        self.ip = ip
+        self.ip = ip.strip()
         self.print_reason = print_reason
         self.default_motd_invalid = default_motd_invalid
 
@@ -131,6 +135,9 @@ class ServerValidator:
                 dprint(f"bad server: ip ends with {end}")
                 return False
 
+        if " " in self.ip:
+            return False
+        
         if is_ipv4(ip_alone):
             dprint("is ipv4, skipping")
             return False
@@ -186,6 +193,9 @@ class MotdValidator:
         
         if "This server is OFFLINE!" in motd:
             return False, "This server is OFFLINE!"
+        
+        if "Hosted by lilypad.gg" in motd:
+            return False, "Hosted by lilypad.gg"
         
         if "Server is offline." in motd:
             return False, "Server is offline."
