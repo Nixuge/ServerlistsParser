@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Type
+from typing import Optional, Type
 
 from classes.BaseParser import BaseParser
 
@@ -11,3 +11,4 @@ class ParserMeta:
     color: str
     parserClass: Type[BaseParser]
     run_bulk: bool = True
+    region: Optional[str] = None

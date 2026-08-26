@@ -37,7 +37,11 @@ for index, parser in enumerate(all_parsers):
     if index+1 < 10:
         current_str += ' '
     
-    current_str += f": {parser.name} v{parser.version} ({parser.website}){termcolor.RESET}"
+    current_str += ": "
+    if parser.region:
+        current_str += f"[{parser.region}] "
+    
+    current_str += f"{parser.name} v{parser.version} ({parser.website}){termcolor.RESET}"
     print(current_str)
 print(f"{termcolor.BOLD}{lenP+1} : Run all bulk parsers (!){termcolor.RESET}")
 print(f"{lenP+2} : Run all parsers (forced)")

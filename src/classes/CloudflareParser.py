@@ -18,6 +18,11 @@ def make_webdriver() -> webdriver.Chrome:
     # SOMEHOW(?) this hides the webdriver shit
     # https://www.browserscan.net/bot-detection
     option.add_argument('--disable-blink-features=AutomationControlled')
+    # https://github.com/teamcapybara/capybara/issues/2795
+    option.add_argument('--disable-features=MacAppCodeSignClone')
+    option.add_experimental_option("excludeSwitches", ["enable-automation"])
+    option.add_experimental_option("useAutomationExtension", False)
+
     # option.add_argument('--headless=new')
     option.add_argument
 

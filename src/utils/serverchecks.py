@@ -89,7 +89,7 @@ class ServerValidator:
             return False
         
         try:
-            status = mcstatus.JavaServer.lookup(self.ip).status(version=773)
+            status = mcstatus.JavaServer.lookup(self.ip).status(version=776)
 
             motd = motd_remove_section_signs(status.description)
             motd_valid, motd_valid_reason = MOTD_VALIDATOR.is_motd_valid(self.ip, motd, self.default_motd_invalid)
